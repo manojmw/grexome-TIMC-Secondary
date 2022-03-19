@@ -4,6 +4,7 @@
 
 # For details on arguments and the output generated, please use the help option (-h, --help) with the script:
   % python3 script.py -h
+  
 
 ###########################################################
 
@@ -56,6 +57,7 @@
 
 # Building a High-Quality Human Interactome with:
   % python3 Interactome.py --inCuratedFile curated_Biogrid.tsv curated_Intact.tsv --inPrimAC uniprot_main.tsv --inCanonicalFile canonicalTranscripts_*.tsv > Interactome_human.tsv
+
 
 ###########################################################
 
