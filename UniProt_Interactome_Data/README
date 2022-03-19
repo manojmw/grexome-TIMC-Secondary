@@ -22,7 +22,7 @@
 
 ###########################################################
 
-# Accessing Protein-Protein Interaction Data
+# Accessing and processing Protein-Protein Interaction Data
 
 1] Grab the Protein-Protein Interaction Data in miTAB format (2.5 or 2.7)
 
@@ -55,7 +55,7 @@
 
 ###########################################################
 
-# Building a High-Quality Human Interactome with:
+# Building High-Quality Human Interactome with:
   % python3 Interactome.py --inCuratedFile curated_Biogrid.tsv curated_Intact.tsv --inPrimAC uniprot_main.tsv --inCanonicalFile canonicalTranscripts_*.tsv > Interactome_human.tsv
 
 
