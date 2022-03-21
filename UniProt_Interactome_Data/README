@@ -4,7 +4,7 @@
 
 # For details on arguments and the output generated, please use the help option (-h, --help) with the script:
   % python3 script.py -h
-  
+
 
 ###########################################################
 
@@ -26,13 +26,13 @@
 
 1] Grab the Protein-Protein Interaction Data in miTAB format (2.5 or 2.7)
 
-    - Get BioGRID data (Release Version: 4.4.206) with:
-      % wget https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-4.4.206/BIOGRID-ORGANISM-4.4.206.mitab.zip
+    - Get BioGRID data (Release Version: 4.4.207, February 28th, 2022) with:
+      % wget https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-4.4.207/BIOGRID-ORGANISM-4.4.207.mitab.zip
 
     - Unzip with:
-      % unzip BIOGRID-ORGANISM-4.4.206.mitab.zip
+      % unzip BIOGRID-ORGANISM-4.4.207.mitab.zip
 
-    - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens-4.4.206.mitab.txt for human data)
+    - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens-4.4.207.mitab.txt for human data)
 
     - If you want to grab the latest BioGRID data, visit (https://downloads.thebiogrid.org/BioGRID) and navigate to Current-Release
 
@@ -47,7 +47,7 @@
 
 
 2.1] Parse BioGRID data with:
-    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens-4.4.206.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > curated_Biogrid.tsv
+    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens-4.4.207.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > curated_Biogrid.tsv
 
 2.2] Then, parse Intact data with:
     % python3 Interaction_parser.py --inInteraction intact.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > curated_Intact.tsv
