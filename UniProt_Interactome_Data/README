@@ -2,10 +2,6 @@
 
 # Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
 
-# For details on arguments and the output generated, please use the help option (-h, --help) with the script:
-  % python3 script.py -h
-
-
 ###########################################################
 
 # Accessing and Processing UniProt data files
@@ -14,7 +10,14 @@
   % wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
 
 2] Parse UniProt data to produce output files with:
-  % uniprot_sprot.dat.gz | python3 Uniprot_parser.py --inUniprot uniprot_sprot.dat --outPrimAC uniprot_main.tsv --outSecAC uniprot_secondary.tsv ---outGeneID geneID.tsv
+  % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py --inUniprot uniprot_sprot.dat --outPrimAC uniprot_main.tsv --outSecAC uniprot_secondary.tsv ---outGeneID geneID.tsv
+
+  # Description of arguments:
+    --outPrimaryAC:   A tab-seperated UniProt Primary Accession Output File name containing UniProt Primary Accession, Taxonomy Identifier, ENST(s) & ENSG(s)
+
+    --outSecondaryAC: A tab-seperated UniProt Secondary Accession Output File name containing UniProt Secondary Accession & Corresponding UniProt Primary Accession
+
+    --outGeneID:      A tab-seperated GeneID Output File name (.tsv) containing GeneID & Corresponding UniProt Primary Accession
 
 
 ###########################################################
@@ -42,16 +45,48 @@
 
 
 2.1] Parse BioGRID data with:
-    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens-4.4.207.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > curated_Biogrid.tsv
+    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens-4.4.207.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Biogrid.tsv
 
 2.2] Then, parse Intact data with:
-    % python3 Interaction_parser.py --inInteraction intact.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > curated_Intact.tsv
+    % python3 Interaction_parser.py --inInteraction intact.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Intact.tsv
+
+    # Description of arguments:
+
+      - Interaction_parser.py script basically takes the Protein-Protein Interaction file along with the output files produced by Uniprot_Parser.py
+
+      --inInteraction: Protein-protein Interaction Input File name (miTAB 2.5 or 2.7)
+
+      --inPrimAC:      Uniprot Primary Accession Input File produced by Uniprot_parser.py
+
+      --inSecAC:       Uniprot Secondary Accession Input File produced by Uniprot_parser.py
+
+      --inGeneID:      GeneID Input File name produced by Uniprot_parser.py
 
 
 ###########################################################
 
 # Building High-Quality Human Interactome with:
-  % python3 Interactome.py --inCuratedFile curated_Biogrid.tsv curated_Intact.tsv --inPrimAC uniprot_main.tsv --inCanonicalFile canonicalTranscripts_*.tsv.gz > Interactome_human.tsv
+  % python3 Build_Interactome.py --inExpFile Exp_Biogrid.tsv Exp_Intact.tsv --inPrimAC uniprot_main.tsv --inCanonicalFile canonicalTranscripts_*.tsv.gz > Interactome_human.tsv
+
+    # Description of arguments:
+
+      --inExpFile:        Experiment Output Files produced by Interaction_parser.py
+
+      --inPrimAC:         Uniprot Primary Accession Input File produced by Uniprot_parser.py
+
+      --inCanonicalFile:  Canonical Transcripts Input File name
+
+    # High-Quality Interactome Criteria:
+
+      1] Filtering Interactions based on Interaction Detection Method:
+        - We filter out pull down (MI:0096), genetic interference (MI:0254) & unspecified method (MI:0686)
+
+      2] Filtering Interactions based on Interaction Type:
+        - We keep only direct interaction (MI:0407) & physical association (MI:0915)
+
+      3] We try to eliminate most of the SPOKE EXPANSION DATA, and consider only TRUE BINARY INTERACTIONS
+
+      4] Each Interaction has ≥ 2 experiments, of which at least one of them should be proved by any BINARY METHOD
 
 
 ###########################################################
