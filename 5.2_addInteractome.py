@@ -511,10 +511,10 @@ def addInteractome(args):
             if line[Symbol_index] == Gene_AllPatho_Pvalue[Gene_AllPathoIndex][0]:
                 # Inserting Interactome data immediately after the 'SYMBOL' column
                 line[Symbol_index+1:Symbol_index+1] = Gene_AllPatho_Pvalue[Gene_AllPathoIndex][2:len(Gene_AllPatho_Pvalue[Gene_AllPathoIndex])]
-                print('\t'.join(line))
+                print('\t'.join(str(data) for data in line))
 
     # Closing the file
-    addGTEX_outfile.close()
+    addGTEX_output.close()
 
     logging.info("Step 5.2_addInteractome - ALL DONE, completed successfully!\n")
 
