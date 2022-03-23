@@ -516,7 +516,7 @@ def addInteractome(args):
     # Closing the file
     addGTEX_outfile.close()
 
-    logging.info("Done 🎉")
+    logging.info("Step 5.2_addInteractome - ALL DONE, completed successfully!\n")
 
     return
 
