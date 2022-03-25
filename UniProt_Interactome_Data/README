@@ -30,7 +30,7 @@
       % wget https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ORGANISM-LATEST.mitab.zip
 
     - Unzip with:
-      % unzip BIOGRID-ORGANISM-4.4.207.mitab.zip
+      % unzip BIOGRID-ORGANISM-LATEST.mitab
 
     - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt for human data)
 
