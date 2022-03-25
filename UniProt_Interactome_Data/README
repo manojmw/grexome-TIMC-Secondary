@@ -70,7 +70,7 @@
 
     # Description of arguments:
 
-      --inExpFile:        Experiment Output Files produced by Interaction_parser.py
+      --inExpFile:        PPI Experiments Output File(s) produced by Interaction_parser.py
 
       --inPrimAC:         Uniprot Primary Accession Input File produced by Uniprot_parser.py
 
