@@ -90,7 +90,7 @@ my $debugVep = '';
 # help: if true just print $USAGE and exit
 my $help = '';
 
-my $USAGE = "Parse a GVCF or VCF, run the complete grexome-TIMC secondary analysis pipeline, 
+my $USAGE = "Parse a GVCF or VCF, run the complete grexome-TIMC secondary analysis pipeline,
 and produce results (+ logs and copies of the metadata) in the provided outDir (which must not exist).
 Each step of the pipeline is a stand-alone self-documented script, this is just a wrapper.
 Every install-specific param (eg paths to shared data) should be in grexomeTIMCsec_config.pm.
@@ -134,11 +134,11 @@ GetOptions ("samples=s" => \$samples,
 ($config =~ m~/~) || ($config = "./$config");
 (-f $config) ||  die "E $0: the supplied config.pm doesn't exist: $config\n";
 require($config);
-grexomeTIMCsec_config->import(qw(refGenome vepCacheFile vepPluginDataPath fastTmpPath), 
+grexomeTIMCsec_config->import(qw(refGenome vepCacheFile vepPluginDataPath fastTmpPath),
 			      qw(coveragePath gtexDatafile gtexFavoriteTissues subCohorts));
 
 ($outDir) || die "E $0: you must provide an outDir\n";
-(-e $outDir) && 
+(-e $outDir) &&
     die "E $0: outDir $outDir already exists, remove it or choose another name.\n";
 mkdir($outDir) || die "E $0: cannot mkdir outDir $outDir\n";
 
@@ -250,12 +250,20 @@ if ($debug) {
     $com = "cat $outDir/step4.out ";
 }
 
-# step 5
-$com .= " | perl $RealBin/5_addGTEX.pl --favoriteTissues=".&gtexFavoriteTissues()." --gtex=".&gtexDatafile($RealBin)." ";
+# step 5.1
+$com .= " | perl $RealBin/5.1_addGTEX.pl --favoriteTissues=".&gtexFavoriteTissues()." --gtex=".&gtexDatafile($RealBin)." ";
 if ($debug) {
-    $com .= "2> $outDir/step5.err > $outDir/step5.out";
-    system($com) && die "E $0: debug mode on, step5 failed: $?";
-    $com = "cat $outDir/step5.out ";
+    $com .= "2> $outDir/step5.1.err > $outDir/step5.1.out";
+    system($com) && die "E $0: debug mode on, step5.1 failed: $?";
+    $com = "cat $outDir/step5.1.out ";
+}
+
+# step 5.2
+$com .= " | python $RealBin/5.2_addInteractome.py --inPrimAC=".&UniProtFile($RealBin)." --inCandidateFile=$candidateGenes --inCanonicalFile=".&canonicalFile()." --inInteractome=".&InteractomeFile($RealBin)." "
+if ($debug) {
+    $com .= "2> $outDir/step5.2.err > $outDir/step5.2.out";
+    system($com) && die "E $0: debug mode on, step5.2 failed: $?";
+    $com = "cat $outDir/step5.2.out ";
 }
 
 # step 6
@@ -367,7 +375,7 @@ if ($doSubCs) {
 	($outFileRoot =~ s/^subCohort_//) || die "E $0: cannot remove leading subCohort_ from subCohortFile $outFileRoot\n";
 	($outFileRoot =~ s/\.txt$//) || die "E $0: cannot remove .txt from subCohortFile $outFileRoot\n";
 	$outFileRoot = "$outDir/SubCohorts/$outFileRoot";
-	
+
 	$com .= "perl $RealBin/9_extractSubcohort.pl $subC < $outDir/Cohorts/$patho.final.patientIDs.csv > $outFileRoot.cohort.csv ; ";
 	($canon) ||
 	    ($com .= "perl $RealBin/9_extractSubcohort.pl $subC < $outDir/Cohorts_Canonical/$patho.final.patientIDs.canon.csv > $outFileRoot.cohort.canon.csv ; ");
@@ -394,10 +402,10 @@ if ($caller) {
 	die "E $0: step10-appendVC cannot find final csv files with find\n";
     while (my $f = <FILES>) {
 	chomp($f);
-	my $new = $f; 
-	($new =~ s/\.csv$/.$caller.csv/) || 
+	my $new = $f;
+	($new =~ s/\.csv$/.$caller.csv/) ||
 	    die "E $0: step10-appendVC cannot add $caller as suffix to $new\n";
-	(-e $new) && 
+	(-e $new) &&
 	    die "E $0: step10-appendVC want to rename to new $new but it already exists?!\n";
 	rename($f,$new) ||
 	    die "E $0: step10-appendVC cannot rename $f $new\n";
