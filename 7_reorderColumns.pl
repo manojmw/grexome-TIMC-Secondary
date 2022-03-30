@@ -22,7 +22,7 @@ $0 = basename($0);
 
 # columns to be printed first, in that order (replace COHORT
 # with the current cohort)
-my @newOrder = qw(POSITION REF ALT SYMBOL KNOWN_CANDIDATE_GENE COUNT_HR COUNT_COHORT_HV COUNT_COHORT_HET COUNT_COHORT_OTHERCAUSE_HV COUNT_COHORT_OTHERCAUSE_HET COUNT_COMPAT_HV COUNT_COMPAT_HET COUNT_NEGCTRL_HV COUNT_NEGCTRL_HET COUNT_OTHERGENO IMPACT Consequence HGVSc HGVSp Protein_position gnomAD_AF COHORT_HV COHORT_HET COHORT_OTHERCAUSE_HV COHORT_OTHERCAUSE_HET COMPAT_HV COMPAT_HET GTEX_testis_RATIO GTEX_ovary_RATIO GTEX_testis GTEX_ovary GTEX_blood GTEX_cerebellar_hemisphere GTEX_liver GTEX_lung);
+my @newOrder = qw(POSITION REF ALT SYMBOL KNOWN_CANDIDATE_GENE COHORT_KnownInteractorsCount COHORT_KnownInteractorsList COHORT_Pvalue COUNT_HR COUNT_COHORT_HV COUNT_COHORT_HET COUNT_COHORT_OTHERCAUSE_HV COUNT_COHORT_OTHERCAUSE_HET COUNT_COMPAT_HV COUNT_COMPAT_HET COUNT_NEGCTRL_HV COUNT_NEGCTRL_HET COUNT_OTHERGENO IMPACT Consequence HGVSc HGVSp Protein_position gnomAD_AF COHORT_HV COHORT_HET COHORT_OTHERCAUSE_HV COHORT_OTHERCAUSE_HET COMPAT_HV COMPAT_HET GTEX_testis_RATIO GTEX_ovary_RATIO GTEX_testis GTEX_ovary GTEX_blood GTEX_cerebellar_hemisphere GTEX_liver GTEX_lung);
 
 
 # build hash of @newOrder headers, value is the new column index
@@ -54,6 +54,10 @@ foreach my $i (0..$#titles) {
 	# also replace $cohort with COHORT in COUNT_$cohort_* and in $cohort_* ,
 	# careful not to touch NEGCTRL or COMPAT or other random titles...
 	$title =~ s/$1/COHORT/;
+    }
+    # also replace $cohort with COHORT in $cohort_KnownInteractorsCount, $cohort_KnownInteractorsList and $cohort_Pvalue
+    elsif (($title =~ /(\w+)_KnownInteractorsCount$/) || ($title =~ /(\w+)_KnownInteractorsList$/) || ($title =~ /(\w+)_Pvalue$/)) {
+    $title =~ s/$1/COHORT/;
     }
 
     if (defined $title2index{$title}) {
