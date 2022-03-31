@@ -24,7 +24,7 @@ our @ISA = ('Exporter');
 # therefore we should never "use grexomeTIMCsec_config" but instead
 # provide the customized *config.pm as an argument, see --config in
 # grexome-TIMC-secondary.pl for an example.
-our @EXPORT_OK = qw(refGenome vepCacheFile vepPluginDataPath fastTmpPath
+our @EXPORT_OK = qw(refGenome vepCacheFile vepPluginDataPath UniProtFile InteractomeFile canonicalFile fastTmpPath
                     coveragePath gtexDatafile gtexFavoriteTissues subCohorts);
 
 
