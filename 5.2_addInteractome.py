@@ -10,7 +10,7 @@ import re
 import gzip
 import logging
 
-logging.I("starting to run\n")
+logging.info("starting to run\n")
 
 ###########################################################
 
@@ -496,7 +496,7 @@ def addInteractome(args):
     # Closing the file
     addGTEX_output.close()
 
-    logging.I("5.2_addInteractome.py - ALL DONE, completed successfully!\n")
+    logging.info("5.2_addInteractome.py - ALL DONE, completed successfully!\n")
 
     return
 
