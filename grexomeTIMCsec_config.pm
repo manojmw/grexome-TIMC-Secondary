@@ -90,7 +90,7 @@ sub vepPluginDataPath {
 # directory is stored in the same directory
 # (You can change the path as per your needs)
 sub UniProtFile {
-  @_ == 1) || die "E: UniProtFile needs one arg";
+  (@_ == 1) || die "E: UniProtFile needs one arg";
   my ($secPath) = @_;
   my $UniProt = "$secPath/UniProt_Interactome_Data/uniprot_main.tsv";
   (-f $UniProt) && return($UniProt);
@@ -104,7 +104,7 @@ sub UniProtFile {
 # directory is stored in the same directory
 # (You can change the path as per your needs)
 sub InteractomeFile {
-  @_ == 1) || die "E: InteractomeFile needs one arg";
+  (@_ == 1) || die "E: InteractomeFile needs one arg";
   my ($secPath) = @_;
   my $Interactome = "$secPath/UniProt_Interactome_Data/Interactome_human.tsv";
   (-f $Interactome) && return($Interactome);
