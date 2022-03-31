@@ -381,7 +381,7 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, candidateENSG_out
             if Known_Interactors:
                 # Applying Fisher's exact test to calculate p-values
                 ComputePvalue_data = [[len(Known_Interactors), len(Interactors)],[pathology_CandidateCount[i], Count_UniqueENSGs]]
-                (odd_ratio, p_value) = stats.fisher_exact(ComputePvalue_data)
+                (odds_ratio, p_value) = stats.fisher_exact(ComputePvalue_data)
             # If there are no Known Interactors, 
             # there is no point is computing P-value,
             # So we assign P-value as 1
@@ -493,7 +493,7 @@ def addInteractome(args):
         # with this particular gene
         if line_fields[Gene_index] in Gene_IntAllpatho.keys():
             # Inserting Interactome data immediately after the 'SYMBOL' column
-            line_fields[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line[Symbol_index]]
+            line_fields[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line[Gene_index]]
             print('\t'.join(str(data) for data in line_fields))
         else:
             # If the gene is not present
