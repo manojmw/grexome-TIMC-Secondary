@@ -144,7 +144,7 @@ def uniprot_parser(args):
     except IOError as e:
         print("Error: Unable to open the files for writing")
 
-    logging.info("Done 🎉")
+    logging.info("ALL DONE, completed successfully!")
 
     return
 
