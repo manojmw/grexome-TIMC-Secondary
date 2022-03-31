@@ -7,6 +7,7 @@ import argparse, sys
 import pandas as pd
 import scipy.stats as stats
 import re
+import gzip
 import logging
 import time
 
