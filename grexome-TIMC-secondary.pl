@@ -134,7 +134,7 @@ GetOptions ("samples=s" => \$samples,
 ($config =~ m~/~) || ($config = "./$config");
 (-f $config) ||  die "E $0: the supplied config.pm doesn't exist: $config\n";
 require($config);
-grexomeTIMCsec_config->import(qw(refGenome vepCacheFile vepPluginDataPath fastTmpPath),
+grexomeTIMCsec_config->import(qw(refGenome vepCacheFile vepPluginDataPath UniProtFile InteractomeFile canonicalFile fastTmpPath),
 			      qw(coveragePath gtexDatafile gtexFavoriteTissues subCohorts));
 
 ($outDir) || die "E $0: you must provide an outDir\n";
