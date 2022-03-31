@@ -397,7 +397,7 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, candidateENSG_out
                 Gene_AllPatho.append(data)
 
         #  Storing it in the dictionary 
-        Gene_IntAllpatho[[Gene_AllPatho[0]]] = Gene_AllPatho[1:len(Gene_AllPatho)]
+        Gene_IntAllpatho[Gene_AllPatho[0]] = Gene_AllPatho[1:len(Gene_AllPatho)]
 
     return Gene_IntAllpatho
 
