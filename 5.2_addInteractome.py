@@ -502,7 +502,7 @@ def addInteractome(args):
             # Since there are 3 types of Interactome data
             # associated with each pathology, we multiply
             # empty string by 3 which is further multiplied by the no. of pathologies
-            line_fields[Symbol_index+1:Symbol_index+1] = [0, '', 1] * 3 * len(pathologies_list)
+            line_fields[Symbol_index+1:Symbol_index+1] = [''] * 3 * len(pathologies_list)
             print('\t'.join(str(data) for data in line_fields))  
 
     # Closing the file
