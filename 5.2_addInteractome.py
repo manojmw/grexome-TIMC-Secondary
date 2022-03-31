@@ -493,7 +493,7 @@ def addInteractome(args):
         # with this particular gene
         if line_fields[Gene_index] in Gene_IntAllpatho.keys():
             # Inserting Interactome data immediately after the 'SYMBOL' column
-            line_fields[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line[Gene_index]]
+            line_fields[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line_fields[Gene_index]]
             print('\t'.join(str(data) for data in line_fields))
         else:
             # If the gene is not present
