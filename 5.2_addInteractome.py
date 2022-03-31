@@ -469,12 +469,12 @@ def addInteractome(args):
     # else grabbed the required column index -> PROCEED
 
     # Patho_header_list is a list containing sublists
-    # One sublist per pathology
+    # One sublist per pathology (COHORT)
     # Each Sublist contains following header names:
-    # - patho_KnownInteractorsCount
-    # - patho_KnownInteractorsList
-    # - patho_Pvalue
-    Patho_header_list = [[patho+'_KnownInteractorsCount', patho+'_KnownInteractorsList', patho+'_Pvalue'] for patho in pathologies_list]
+    # - patho_INTERACTORS_COUNT
+    # - patho_INTERACTORS
+    # - patho_INTERACTORS_PVALUE
+    Patho_header_list = [[patho+'_INTERACTORS_COUNT', patho+'_INTERACTORS', patho+'_INTERACTORS_PVALUE'] for patho in pathologies_list]
 
     # Initializing a list to store all
     # all the elements of a sublist in a
@@ -526,10 +526,10 @@ def addInteractome(args):
 def main():
     file_parser = argparse.ArgumentParser(description =
     """
-------------------------------------------------------------------------------------------------------------------------
-Program: Reads on STDIN a TSV file as produced by 5.1_addGTEX.pl. Prints to stdout a TSV file with added columns holding
-         Interactome data (non-clustering approach)
-------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------
+Program: Reads on STDIN a TSV file as produced by 5.1_addGTEX.pl. Also parses the files provided to the arguments.
+         Prints to stdout a TSV file with added columns holding Interactome data (non-clustering approach)
+------------------------------------------------------------------------------------------------------------------
 
 Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     """,

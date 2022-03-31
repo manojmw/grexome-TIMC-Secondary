@@ -261,9 +261,9 @@ foreach my $geno ("HV","HET","OTHER","HR") {
 }
 
 # There are 3 Interactome headers for each patholgoy/cohort
-# - COHORT_KnownInteractorsCount
-# - COHORT_KnownInteractorsList
-# - COHORT_Pvalue
+# - COHORT_INTERACTORS_COUNT
+# - COHORT_INTERACTORS
+# - COHORT_INTERACTORS_PVALUE
 # Initializng an hash to store cohort name
 # and thier corresponding column indices in infile
 # Key -> COHORT name; Value -> array reference of column indices
@@ -275,7 +275,7 @@ foreach my $i (0..$#headers) {
   # storing the Interactome col in array
   my @Interactomecoli;
   # Matching Interactome headers
-  if ($headers[$i] =~ /_KnownInteractorsCount|_KnownInteractorsList|_Pvalue/) {
+  if ($headers[$i] =~ /_INTERACTORS_COUNT$|_INTERACTORS$|_INTERACTORS_PVALUE$/) {
     # Getting the cohort name from the Interactome header
     # In each Interactome header, the cohort name
     # is separated by an '_', we split at the '_'
