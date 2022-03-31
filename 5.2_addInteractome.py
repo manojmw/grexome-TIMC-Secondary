@@ -9,7 +9,6 @@ import scipy.stats as stats
 import re
 import gzip
 import logging
-import time
 
 logging.I("starting to run\n")
 
@@ -315,31 +314,35 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
 # Checks the number of known interactors
 # using the candidateGene_out_list returned by the function: CandidateGene2ENSG
 #
-# Return a list containing sublists
-# One sublist per gene
-# Each sublist contains:
-# - Gene Name
-# - Total Number of Interactors
-# - Known Interactors, list of Known_Interactors, P-value (for each pathology)
-def Interactors_PValue(Interactome_list, All_Interactors_list, CandidateGene_data, candidateENSG_out_list, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs, ENSG_Gene_dict):
+# Returns a Dictionary
+# Key -> Gene name; 
+# Value -> A List of Interactome data associated with each pathology
+# For each pathology, following Interactome data is added:
+# - Known Interactors count
+# - list of Known Interactors
+# - P-value
+def Interactors_PValue(Interactome_list, All_Interactors_list, candidateENSG_out_list, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs, ENSG_Gene_dict):
 
-    # Initializing first output list containing distinct lists
-    # i.e. one Sublist per Gene
-    # Each Sublist contains:
-    # - Gene name
-    # - Total number of Interactors
-    # - Known Interactors count, list of Known Interactors, P-value and 0 (for each pathology)
-    # 0 will later be replaced by Benjamini-Hochberg corrected P-value
-    Gene_AllPatho_Pvalue = [[] for i in range(len(All_Interactors_list))]
-
-    # List for keeping the count of number of statistical tests
-    # performed for each pathology
-    Patho_TestCount = [0] * len(pathologies_list)
+    # Dictionary to store Gene and
+    # Interactome data associated with each pathology
+    # Key-> Gene; 
+    # Value -> A List of Interactome data associated 
+    # with each pathology
+    Gene_IntAllpatho = {}
 
     # Checking the number of interactors for each gene
     for ENSG_index in range(len(All_Interactors_list)):
 
-        Gene_AllPatho_Pvalue[ENSG_index].append(All_Interactors_list[ENSG_index])
+        # List to store Gene name and interactome
+        # data associated with each pathology
+        # For each pathology, following Interactome 
+        # data is added:
+        # - Known Interactors count
+        # - list of Known Interactors
+        # - P-value
+        Gene_AllPatho = []
+
+        Gene_AllPatho.append(All_Interactors_list[ENSG_index])
 
         # List of interactors
         Interactors = []
@@ -355,8 +358,6 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, CandidateGene_dat
                 if not Proteins[0] in Interactors:
                     # Get the interacting protein
                     Interactors.append(Proteins[0])
-
-        Gene_AllPatho_Pvalue[ENSG_index].append(len(Interactors))
 
         for i in range(len(pathologies_list)):
 
@@ -377,15 +378,13 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, CandidateGene_dat
             for Known_InteractorIndex in range(len(Known_Interactors)):
                 Known_Interactors[Known_InteractorIndex] = ENSG_Gene_dict[Known_Interactors[Known_InteractorIndex]]
 
-            # If there are no Known Interactors, there is no
-            # point is computing P-value,
-            # So we assign P-value as 1
-
             if Known_Interactors:
                 # Applying Fisher's exact test to calculate p-values
                 ComputePvalue_data = [[len(Known_Interactors), len(Interactors)],[pathology_CandidateCount[i], Count_UniqueENSGs]]
                 (odd_ratio, p_value) = stats.fisher_exact(ComputePvalue_data)
-                Patho_TestCount[i] += 1
+            # If there are no Known Interactors, 
+            # there is no point is computing P-value,
+            # So we assign P-value as 1
             else:
                 p_value = 1
 
@@ -395,12 +394,13 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, CandidateGene_dat
                 Output_eachPatho = [len(Known_Interactors), '', p_value]
 
             for data in Output_eachPatho:
-                Gene_AllPatho_Pvalue[ENSG_index].append(data)
+                Gene_AllPatho.append(data)
 
-        # Getting the Gene name for the ENSG
-        Gene_AllPatho_Pvalue[ENSG_index][0] = ENSG_Gene_dict[Gene_AllPatho_Pvalue[ENSG_index][0]]
+        # Getting the gene name for the ENSG
+        # and Storing it in the dictionary 
+        Gene_IntAllpatho[ENSG_Gene_dict[Gene_AllPatho[0]]] = Gene_AllPatho[1:len(Gene_AllPatho)]
 
-    return Gene_AllPatho_Pvalue
+    return Gene_IntAllpatho
 
 ###########################################################
 
@@ -427,7 +427,7 @@ def addInteractome(args):
     (candidateENSG_out_list, pathologies_list) = CandidateGene2ENSG(ENSG_Gene_dict, CandidateGene_data)
     pathology_CandidateCount = CountCandidateGenes(candidateENSG_out_list, pathologies_list)
     Count_UniqueENSGs = Uniprot_ENSG(args.inPrimAC, ENSG_Gene_dict)
-    Gene_AllPatho_Pvalue = Interactors_PValue(Interactome_list, All_Interactors_list, CandidateGene_data, candidateENSG_out_list, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs, ENSG_Gene_dict)
+    Gene_IntAllpatho = Interactors_PValue(Interactome_list, All_Interactors_list, candidateENSG_out_list, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs, ENSG_Gene_dict)
 
     # Take STDIN file as produced by 5.1_addGTEX.pl
     addGTEX_output = sys.stdin
@@ -484,18 +484,14 @@ def addInteractome(args):
         line = line.rstrip('\n')
         line = line.split('\t')
 
-        for Gene_AllPathoIndex in range(len(Gene_AllPatho_Pvalue)):
-            # Checking if the Gene name (present in the SYMBOL column)
-            # of addGTEX_output exists in Gene_AllPatho_Pvalue
-            # If yes, then adding the interactome data associated
-            # with this particular gene
-            #
-            # The first item (index: 0) of every sublist of
-            # Gene_AllPatho_Pvalue is the Gene name
-            if line[Symbol_index] == Gene_AllPatho_Pvalue[Gene_AllPathoIndex][0]:
-                # Inserting Interactome data immediately after the 'SYMBOL' column
-                line[Symbol_index+1:Symbol_index+1] = Gene_AllPatho_Pvalue[Gene_AllPathoIndex][2:len(Gene_AllPatho_Pvalue[Gene_AllPathoIndex])]
-                print('\t'.join(str(data) for data in line))
+        # Checking if the Gene name (present in the SYMBOL column)
+        # of addGTEX_output exists as a key in the dictionary: Gene_IntAllpatho
+        # If yes, then adding the interactome data associated
+        # with this particular gene
+        if line[Symbol_index] in Gene_IntAllpatho.keys():
+            # Inserting Interactome data immediately after the 'SYMBOL' column
+            line[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line[Symbol_index]]
+            print('\t'.join(str(data) for data in line))
 
     # Closing the file
     addGTEX_output.close()
