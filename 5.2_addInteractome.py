@@ -10,8 +10,6 @@ import re
 import gzip
 import logging
 
-logging.info("starting to run\n")
-
 ###########################################################
 
 # Parses tab-seperated canonical transcripts file
@@ -22,6 +20,8 @@ logging.info("starting to run\n")
 # - Key -> ENSG
 # - Value -> Gene
 def ENSG_Gene(inCanonicalFile):
+
+    logging.info("starting to run\n")
 
     # Dictionary to store ENSG & Gene data
     ENSG_Gene_dict = {}
@@ -396,9 +396,8 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, candidateENSG_out
             for data in Output_eachPatho:
                 Gene_AllPatho.append(data)
 
-        # Getting the gene name for the ENSG
-        # and Storing it in the dictionary 
-        Gene_IntAllpatho[ENSG_Gene_dict[Gene_AllPatho[0]]] = Gene_AllPatho[1:len(Gene_AllPatho)]
+        #  Storing it in the dictionary 
+        Gene_IntAllpatho[[Gene_AllPatho[0]]] = Gene_AllPatho[1:len(Gene_AllPatho)]
 
     return Gene_IntAllpatho
 
@@ -441,15 +440,19 @@ def addInteractome(args):
     addGTEX_out_headers = addGTEX_out_headerLine.split('\t')
 
     # Check the column header and grab index of our column of interest
-    # Here, we want the grab the index of the column 'SYMBOL'
-    Symbol_index = -1
+    # Here, we want the grab the indices of columns 'SYMBOL' and 'Gene'
+    (Symbol_index, Gene_index) = (-1,-1)
 
     for i in range(len(addGTEX_out_headers)):
         if addGTEX_out_headers[i] == 'SYMBOL':
             Symbol_index = i
+        elif addGTEX_out_headers[i] == 'Gene': 
+            Gene_index = i    
 
     if not Symbol_index >= 0:
         sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'SYMBOL' in STDIN")
+    elif not Gene_index >= 0:
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'Gene' in STDIN")    
     # else grabbed the required column index -> PROCEED
 
     # Patho_header_list is a list containing sublists
@@ -482,16 +485,25 @@ def addInteractome(args):
     # Add Interactome data and print to STDOUT
     for line in addGTEX_output:
         line = line.rstrip('\n')
-        line = line.split('\t')
+        line_fields = line.split('\t')
 
-        # Checking if the Gene name (present in the SYMBOL column)
-        # of addGTEX_output exists as a key in the dictionary: Gene_IntAllpatho
+        # Checking if the Gene present in addGTEX_output exists 
+        # as a key in the dictionary: Gene_IntAllpatho
         # If yes, then adding the interactome data associated
         # with this particular gene
-        if line[Symbol_index] in Gene_IntAllpatho.keys():
+        if line_fields[Gene_index] in Gene_IntAllpatho.keys():
             # Inserting Interactome data immediately after the 'SYMBOL' column
-            line[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line[Symbol_index]]
-            print('\t'.join(str(data) for data in line))
+            line_fields[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line[Symbol_index]]
+            print('\t'.join(str(data) for data in line_fields))
+        else:
+            # If the gene is not present
+            # then we leave the fields empty to avoid
+            # messing up other columns
+            # Since there are 3 types of Interactome data
+            # associated with each pathology, we multiply
+            # empty string by 3 which is further multiplied by the no. of pathologies
+            line_fields[Symbol_index+1:Symbol_index+1] = [''] * 3 * len(pathologies_list)
+            print('\t'.join(str(data) for data in line_fields))  
 
     # Closing the file
     addGTEX_output.close()
