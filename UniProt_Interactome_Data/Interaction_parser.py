@@ -425,7 +425,7 @@ def interaction_parser(args):
     # Closing the file
     interaction_file.close()
 
-    logging.info("Done 🎉")
+    logging.info("ALL DONE, completed successfully!")
 
     return
 
