@@ -10,7 +10,7 @@
   % wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
 
 2] Parse UniProt data to produce output files with:
-  % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py --outPrimAC uniprot_main.tsv --outSecAC uniprot_secondary.tsv ---outGeneID geneID.tsv
+  % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py --outPrimAC uniprot_main.tsv --outSecAC uniprot_secondary.tsv --outGeneID geneID.tsv
 
   # Description of arguments:
     --outPrimaryAC:   A tab-seperated UniProt Primary Accession Output File name containing UniProt Primary Accession, Taxonomy Identifier, ENST(s) & ENSG(s)
