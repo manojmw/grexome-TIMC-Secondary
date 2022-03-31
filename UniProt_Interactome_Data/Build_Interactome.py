@@ -349,7 +349,7 @@ def Interactome_Uniprot2ENSG(args):
 
 
     logging.debug("Total no. of Interactions lost: %d " % lost_Interaction)
-    logging.info("Done 🎉")
+    logging.info("ALL DONE, completed successfully!")
 
     return
 
