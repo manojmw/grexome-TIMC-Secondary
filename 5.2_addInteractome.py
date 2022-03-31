@@ -11,6 +11,8 @@ import gzip
 import logging
 import time
 
+logging.I("starting to run\n")
+
 ###########################################################
 
 # Parses tab-seperated canonical transcripts file
@@ -32,9 +34,7 @@ def ENSG_Gene(inCanonicalFile):
         else:
             Canonical_File = open(inCanonicalFile)
     except IOError as e:
-        sys.exit("Error: At Step 5.2_addInteractome - Failed to read the Canonical transcript file: %s" % inCanonicalFile)
-
-    logging.info("Processing data from Canonical Transcripts File: %s" % inCanonicalFile)
+        sys.exit("E: At Step 5.2_addInteractome - Failed to read the Canonical transcript file: %s" % inCanonicalFile)
 
     Canonical_header_line = Canonical_File.readline() # Grabbing the header line
 
@@ -50,9 +50,9 @@ def ENSG_Gene(inCanonicalFile):
             Gene_index = i
 
     if not ENSG_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inCanonicalFile)
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inCanonicalFile)
     elif not Gene_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'GENE' in the file: %s \n" % inCanonicalFile)
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'GENE' in the file: %s \n" % inCanonicalFile)
     # else grabbed the required column indexes -> PROCEED
 
     # Data lines
@@ -94,7 +94,6 @@ def CandidateGeneParser(inCandidateFile):
     # Data lines
     # Iterating over the list of files and appending to the DataFrame (meta_data)
     for file in candidate_files:
-        logging.info("Processing data from Candidate Gene File: %s" % file)
         data = pd.read_excel(file, engine = 'openpyxl')
         meta_data = pd.concat([meta_data, data])
 
@@ -127,8 +126,6 @@ def CandidateGene2ENSG(ENSG_Gene_dict, CandidateGene_data):
 
     # list to store data associated with each candidate gene
     candidateENSG_out_list = []
-
-    logging.info("Mapping Candidate Genes to ENSG and identifying Pathologies/Phenotypes")
 
     # Data
     for data in CandidateGene_data:
@@ -163,8 +160,6 @@ def CountCandidateGenes(candidateENSG_out_list, pathologies_list):
     # associated with each pathology
     pathology_CandidateCount = [0] * len(pathologies_list)
 
-    logging.info("Counting the Candidate Gene(s) associated with each pathology")
-
     # Data
     for candidateGenedata in candidateENSG_out_list:
         for i in range(len(pathologies_list)):
@@ -194,8 +189,6 @@ def Interacting_Proteins(inInteractome):
     # Input - Interactome file
     Interactome_File = open(inInteractome)
 
-    logging.info("Processing data from Interactome File: %s" % inInteractome)
-
     # Dictionary to Interacting proteins
     # from the Interactome
     Interactome_list = []
@@ -224,8 +217,6 @@ def Interacting_Proteins(inInteractome):
         else:
             SelfInteracting_PPICount += 1
 
-    logging.debug("Total number of Self-Interactions in the Interactome: %d" % SelfInteracting_PPICount)
-
     # Closing the file
     Interactome_File.close()
 
@@ -253,8 +244,6 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
 
     UniprotPrimAC_File = open(inPrimAC)
 
-    logging.info("Processing data from UniProt Primary Accession File: %s" % inPrimAC)
-
     # Grabbing the header line
     UniprotPrimAC_header = UniprotPrimAC_File.readline()
 
@@ -272,9 +261,9 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
             ENSG_index = i
 
     if not UniProt_PrimAC_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'Primary_AC' in the file: %s \n" % inPrimAC)
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'Primary_AC' in the file: %s \n" % inPrimAC)
     elif not ENSG_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inPrimAC)
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inPrimAC)
     # else grabbed the required column indexes -> PROCEED
 
     # Compiling regular expression
@@ -284,8 +273,6 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
 
     # Counter for accessions with single canonical human ENSG
     Count_UniqueENSGs = 0
-
-    logging.info("Counting human ENSGs")
 
     # Data lines
     for line in UniprotPrimAC_File:
@@ -348,8 +335,6 @@ def Interactors_PValue(Interactome_list, All_Interactors_list, CandidateGene_dat
     # List for keeping the count of number of statistical tests
     # performed for each pathology
     Patho_TestCount = [0] * len(pathologies_list)
-
-    logging.info("Processing data, Checking Interactors and Computing P-values...")
 
     # Checking the number of interactors for each gene
     for ENSG_index in range(len(All_Interactors_list)):
@@ -447,8 +432,6 @@ def addInteractome(args):
     # Take STDIN file as produced by 5.1_addGTEX.pl
     addGTEX_output = sys.stdin
 
-    logging.info("Processing data from STDIN")
-
     # Get header line
     addGTEX_out_headerLine = addGTEX_output.readline()
 
@@ -466,7 +449,7 @@ def addInteractome(args):
             Symbol_index = i
 
     if not Symbol_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'SYMBOL' in STDIN")
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'SYMBOL' in STDIN")
     # else grabbed the required column index -> PROCEED
 
     # Patho_header_list is a list containing sublists
@@ -517,7 +500,7 @@ def addInteractome(args):
     # Closing the file
     addGTEX_output.close()
 
-    logging.info("Step 5.2_addInteractome - ALL DONE, completed successfully!\n")
+    logging.I("5.2_addInteractome.py - ALL DONE, completed successfully!\n")
 
     return
 
