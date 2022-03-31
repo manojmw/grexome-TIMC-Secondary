@@ -66,6 +66,9 @@ We try to keep external dependencies to a minimum. The only required perl module
 Standard core modules: Exporter, File::Basename, File::Copy, File::Temp, FindBin, Getopt::Long, POSIX, Storable.
 Other modules: Parallel::ForkManager, Spreadsheet::XLSX.
 
+Python version >= 3
+Required Python modules: Pandas, SciPy (You can install these will pip. Ex: pip install Pandas scipy).
+
 In addition we use the excellent Ensembl Variant Effect Predictor (VEP [2]) for annotating variants. VEP must be installed along with the Ensembl cache (we use Homo sapiens cache 105_GRCh38 at time of writing). We also use some VEP plugins (currently dbNSFP, dbscSNV CADD and SpliceAI), they must be installed along with the associated datafiles. This can all be customized by editing &vepCommand() in 3_runVEP.pl and/or &vepPluginDataPath() in grexomeTIMCsec_config.pm.
 
 [2] http://www.ensembl.org/info/docs/tools/vep/script
