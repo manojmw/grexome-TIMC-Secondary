@@ -32,8 +32,9 @@ def ENSG_Gene(inCanonicalFile):
             Canonical_File = gzip.open(inCanonicalFile, 'rt')
         else:
             Canonical_File = open(inCanonicalFile)
-    except IOError as e:
-        sys.exit("E: At Step 5.2_addInteractome - Failed to read the Canonical transcript file: %s" % inCanonicalFile)
+    except IOError:
+        logging.error("At Step 5.2_addInteractome - Failed to read the Canonical transcript file: %s" % inCanonicalFile)
+        sys.exit()
 
     Canonical_header_line = Canonical_File.readline() # Grabbing the header line
 
@@ -49,9 +50,11 @@ def ENSG_Gene(inCanonicalFile):
             Gene_index = i
 
     if not ENSG_index >= 0:
-        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inCanonicalFile)
+        logging.error("At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inCanonicalFile)
+        sys.exit()
     elif not Gene_index >= 0:
-        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'GENE' in the file: %s \n" % inCanonicalFile)
+        logging.error("At Step 5.2_addInteractome - Missing required column title 'GENE' in the file: %s \n" % inCanonicalFile)
+        sys.exit()
     # else grabbed the required column indexes -> PROCEED
 
     # Data lines
@@ -256,9 +259,11 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
             ENSG_index = i
 
     if not UniProt_PrimAC_index >= 0:
-        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'Primary_AC' in the file: %s \n" % inPrimAC)
+        logging.error("At Step 5.2_addInteractome - Missing required column title 'Primary_AC' in the file: %s \n" % inPrimAC)
+        sys.exit()
     elif not ENSG_index >= 0:
-        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inPrimAC)
+        logging.error("At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inPrimAC)
+        sys.exit()
     # else grabbed the required column indexes -> PROCEED
 
     # Compiling regular expression
@@ -501,9 +506,11 @@ def addInteractome(args):
             Gene_index = i    
 
     if not Symbol_index >= 0:
-        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'SYMBOL' in STDIN")
+        logging.error("At Step 5.2_addInteractome - Missing required column title 'SYMBOL' in STDIN")
+        sys.exit()
     elif not Gene_index >= 0:
-        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'Gene' in STDIN")    
+        logging.error("At Step 5.2_addInteractome - Missing required column title 'Gene' in STDIN")    
+        sys.exit()
     # else grabbed the required column index -> PROCEED
 
     # Patho_header_list is a list containing sublists
@@ -547,13 +554,13 @@ def addInteractome(args):
             line_fields[Symbol_index+1:Symbol_index+1] = Gene_IntAllpatho[line_fields[Gene_index]]
             print('\t'.join(str(data) for data in line_fields))
         else:
-            # If the gene is not present
-            # then we leave the fields empty to avoid
-            # messing up other columns
-            # Since there are 3 types of Interactome data
-            # associated with each pathology, we multiply
-            # empty string by 3 which is further multiplied by the no. of pathologies
-            line_fields[Symbol_index+1:Symbol_index+1] = [''] * 3 * len(pathologies_list)
+            # If the gene is not present in addGTEX_output, then we assign the same
+            # value as when no known interactors were found for a given gene
+            # i.e 
+            # INTERACTORS_COUNT = 0
+            # INTERACTORS = ''
+            # INTERACTORS_PVALUE = 1
+            line_fields[Symbol_index+1:Symbol_index+1] = [0,'',1] * len(pathologies_list)
             print('\t'.join(str(data) for data in line_fields))  
 
     # Closing the file
@@ -569,10 +576,8 @@ def addInteractome(args):
 def main():
     file_parser = argparse.ArgumentParser(description =
     """
-------------------------------------------------------------------------------------------------------------------
-Program: Reads on STDIN a TSV file as produced by 5.1_addGTEX.pl. Also parses the files provided to the arguments.
-         Prints to stdout a TSV file with added columns holding Interactome data (non-clustering approach)
-------------------------------------------------------------------------------------------------------------------
+
+Parse on STDIN a TSV file as produced by 5.1_addGTEX.pl. Also parses the files provided to the arguments. Print to STDOUT a TSV file (similar to the one produced by 5.1_addGTEX.pl) with additional columns holding Interactome data (non-clustering approach)
 
 Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     """,
@@ -591,6 +596,8 @@ Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
 
 if __name__ == "__main__":
     # Logging to Standard Error
-    Log_Format = "%(levelname)s - %(asctime)s - %(message)s \n"
-    logging.basicConfig(stream = sys.stderr, format  = Log_Format, level = logging.DEBUG)
+    logging.basicConfig(format = "%(levelname)s %(asctime)s: %(filename)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S', stream = sys.stderr, level = logging.DEBUG)
+    logging.addLevelName(logging.INFO, 'I' )
+    logging.addLevelName(logging.ERROR, 'E')
+    logging.addLevelName(logging.WARNING, 'W')
     main()
