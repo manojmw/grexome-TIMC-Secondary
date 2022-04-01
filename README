@@ -67,7 +67,7 @@ Standard core modules: Exporter, File::Basename, File::Copy, File::Temp, FindBin
 Other modules: Parallel::ForkManager, Spreadsheet::XLSX.
 
 Python version >= 3
-Required Python modules: Pandas, SciPy (You can install these will pip. Ex: pip install Pandas scipy).
+Required Python modules: Pandas, SciPy (You can install these with pip/conda. Ex: pip3 install pandas scipy OR conda install pandas scipy).
 
 In addition we use the excellent Ensembl Variant Effect Predictor (VEP [2]) for annotating variants. VEP must be installed along with the Ensembl cache (we use Homo sapiens cache 105_GRCh38 at time of writing). We also use some VEP plugins (currently dbNSFP, dbscSNV CADD and SpliceAI), they must be installed along with the associated datafiles. This can all be customized by editing &vepCommand() in 3_runVEP.pl and/or &vepPluginDataPath() in grexomeTIMCsec_config.pm.
 
