@@ -239,8 +239,6 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
 
     UniprotPrimAC_File = open(inPrimAC)
 
-    logging.info("Processing data from UniProt Primary Accession File: %s" % inPrimAC)
-
     # Grabbing the header line
     UniprotPrimAC_header = UniprotPrimAC_File.readline()
 
@@ -258,9 +256,9 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
             ENSG_index = i
 
     if not UniProt_PrimAC_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'Primary_AC' in the file: %s \n" % inPrimAC)
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'Primary_AC' in the file: %s \n" % inPrimAC)
     elif not ENSG_index >= 0:
-        sys.exit("Error: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inPrimAC)
+        sys.exit("E: At Step 5.2_addInteractome - Missing required column title 'ENSG' in the file: %s \n" % inPrimAC)
     # else grabbed the required column indexes -> PROCEED
 
     # Compiling regular expression
@@ -270,8 +268,6 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
 
     # Counter for accessions with single canonical human ENSG
     Count_UniqueENSGs = 0
-
-    logging.info("Counting human ENSGs")
 
     # Data lines
     for line in UniprotPrimAC_File:
