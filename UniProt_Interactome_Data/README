@@ -52,8 +52,6 @@
 
     # Description of arguments:
 
-      - Interaction_parser.py script basically takes the Protein-Protein Interaction file along with the output files produced by Uniprot_Parser.py
-
       --inInteraction: Protein-protein Interaction Input File name (miTAB 2.5 or 2.7)
 
       --inPrimAC:      Uniprot Primary Accession Input File produced by Uniprot_parser.py
@@ -65,7 +63,7 @@
 
 ###########################################################
 
-# Building High-Quality Human Interactome with:
+# Build High-Quality Human Interactome with:
   % python3 Build_Interactome.py --inExpFile Exp_Biogrid.tsv Exp_Intact.tsv --inPrimAC uniprot_main.tsv --inCanonicalFile canonicalTranscripts_*.tsv.gz > Interactome_human.tsv
 
     # Description of arguments:
