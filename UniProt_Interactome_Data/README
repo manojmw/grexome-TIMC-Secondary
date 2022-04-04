@@ -33,6 +33,9 @@
       % unzip BIOGRID-ORGANISM-LATEST.mitab
 
     - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt for human data)
+    
+    - Optional: To simplify the above processs and to avoid unzipping all the files to the terminal, you can simply do:
+      % unzip -p BIOGRID-ORGANISM-LATEST.mitab.zip BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt > BIOGRID-ORGANISM-Homo_sapiens.mitab.txt
 
 
     # Get the latest IntAct data with:
@@ -45,7 +48,7 @@
 
 
 2.1] Parse BioGRID data with:
-    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens-4.4.207.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Biogrid.tsv
+    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Biogrid.tsv
 
 2.2] Then, parse Intact data with:
     % python3 Interaction_parser.py --inInteraction intact.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Intact.tsv
