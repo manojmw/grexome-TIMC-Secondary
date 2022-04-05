@@ -333,7 +333,7 @@ while (my $inFile = readdir(INDIR)) {
 		    $start[$destCols[$fi]] = $fields[$fi];
 		}
 		elsif ($destCols[$fi] == -2) {
-		    $$Interactome .= "\t$fields[$fi]";
+		    $Interactome .= "\t$fields[$fi]";
 		}
 		elsif ($destCols[$fi] == -1) {
 		    $gtex .= "\t$fields[$fi]";
