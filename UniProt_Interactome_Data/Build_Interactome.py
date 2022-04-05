@@ -6,7 +6,6 @@
 import sys, argparse
 import re
 import logging
-import time
 import gzip
 
 ###########################################################
