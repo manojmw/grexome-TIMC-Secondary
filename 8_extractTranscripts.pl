@@ -622,7 +622,7 @@ foreach my $transcript (@transcripts) {
 	$toPrint .= "\t".join(',',sort(@negctrl));
 
 	# transcript2Interactome already starts with \t
-	$toPrint .= $transcript2Interactome{$Interactome};
+	$toPrint .= $transcript2Interactome{$transcript};
 
 	# transcript2gtex already starts with \t
 	$toPrint .= $transcript2gtex{$transcript};
