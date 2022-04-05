@@ -359,7 +359,7 @@ def Interacting_Proteins(inInteractome):
             if ProtB_dict.get(Interactome_fields[1], False):
                 ProtB_dict[Interactome_fields[1]].append(Interactome_fields[0])
             else:
-                ProtA_dict[Interactome_fields[1]] = [Interactome_fields[0]]    
+                ProtB_dict[Interactome_fields[1]] = [Interactome_fields[0]]    
 
             # Storing all the interactors in All_Interactors_list
             if not Interactome_fields[0] in All_Interactors_list:
