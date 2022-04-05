@@ -422,8 +422,9 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
             for Interactor in ProtA_dict[All_Interactors_list[ENSG_index]]:
                 if not Interactor in Interactors:
                     Interactors.append(Interactor)
+                    
         # If Protein is the Second protein
-        elif (All_Interactors_list[ENSG_index] in ProtB_dict.keys()):
+        if (All_Interactors_list[ENSG_index] in ProtB_dict.keys()):
             # Get the interacting protein
             for Interactor in ProtB_dict[All_Interactors_list[ENSG_index]]:
                 if not Interactor in Interactors:
