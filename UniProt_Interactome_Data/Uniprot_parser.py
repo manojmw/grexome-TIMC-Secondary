@@ -30,6 +30,7 @@ import sys
 # - GeneID
 # - Corresponding UniProt Primary AC
 def uniprot_parser(args):
+    logging.info("starting to run")
     try:
         with open(args.outPrimAC, 'w') as PrimAC_outfile, open(args.outSecAC, 'w') as SecAC_outfile, open(args.outGeneID, 'w') as GeneID_outfile:
             PrimAC_header = ['Primary_AC', 'TaxID', 'ENSTs', 'ENSGs']
@@ -62,10 +63,6 @@ def uniprot_parser(args):
             # GeneIDs from the DR line
             re_GID = re.compile('^DR\s+GeneID;\s+(\d+);')
 
-            logging.info("Processing data from UniProt File")
-
-            logging.info("Writing data to output files...")
-
             # Data lines
             for line in sys.stdin:
                 line = line.rstrip('\r\n') # removing trailing new lines and carriage returns
@@ -78,13 +75,16 @@ def uniprot_parser(args):
                     ACs += re_AC.match(line).group(1)
                 elif (re.match(r'^AC\s', line)):
                     # If any AC line is missed, Exit the program with an error message
-                    sys.exit("Error: Missed the AC line %s\n", line)
+                    logging.error("Missed the AC line %s\n", line)
+                    sys.exit()
                 elif (re_TaxID.match(line)):
                     if (TaxID != 0):
-                        sys.exit("Error: Several OX lines for the protein: \t", ACs)
+                        logging.error("Several OX lines for the protein: \t", ACs)
+                        sys.exit()
                     TaxID = re_TaxID.match(line).group(1)
                 elif (re.match(r'^OX\s',line)):
-                    sys.exit("Error: Missed the OX line %s\n", line)
+                    logging.error("Missed the OX line %s\n", line)
+                    sys.exit()
                 elif (re_ENS.match(line)):
                     ENS_match = re_ENS.match(line)
                     ENSTs.append(ENS_match.group(1))
@@ -92,11 +92,13 @@ def uniprot_parser(args):
                     if ENSG not in ENSGs:
                         ENSGs.append(ENSG)
                 elif (re.match(r'^DR\s+Ensembl;', line)):
-                    sys.exit("Error: Failed to get all the Ensembl Identifiers\n", ACs, line)
+                    logging.error("Failed to get all the Ensembl Identifiers\n", ACs, line)
+                    sys.exit()
                 elif (re_GID.match(line)):
                     GeneIDs.append(re_GID.match(line).group(1))
                 elif (re.match(r'^DR\s+GeneID.*', line)):
-                    sys.exit("Error: Missed the GeneIDs \n", ACs, line)
+                    logging.error("Missed the GeneIDs \n", ACs, line)
+                    sys.exit()
 
                 # '//' means End of the record
                 # we Process the retreived data
@@ -108,13 +110,15 @@ def uniprot_parser(args):
                             primary_AC = ACs_split[0] # Grab only the first AC
                             secondary_ACs = ACs_split[1:] # Grab the remaining ACs
                         except:
-                            sys.exit('Error: Failed to store Accession IDs for the protein: \t', ACs)
+                            logging.error("Failed to store Ensembl Identifiers for the protein: \t", ACs)
+                            sys.exit()
                         try:
                             # Processing ENSTs and ENSGs
                             ENSTs = ','.join(ENSTs)
                             ENSGs = ','.join(ENSGs)
                         except:
-                            sys.exit('Error: Failed to store Ensembl Identifiers for the protein: \t', ACs)
+                            logging.error("Failed to store Ensembl Identifiers for the protein: \t", ACs)
+                            sys.exit()
 
                         # Writing to output files
                         primaryAC_line = [primary_AC, TaxID, ENSTs, ENSGs]
@@ -141,8 +145,8 @@ def uniprot_parser(args):
         SecAC_outfile.close()
         GeneID_outfile.close()
 
-    except IOError as e:
-        print("Error: Unable to open the files for writing")
+    except IOError:
+        logging.error("Unable to open the files for writing")
 
     logging.info("ALL DONE, completed successfully!")
 
@@ -189,6 +193,8 @@ Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
 
 if __name__ == "__main__":
     # Logging to Standard Error
-    Log_Format = "%(levelname)s - %(asctime)s - %(message)s \n"
-    logging.basicConfig(stream = sys.stderr, format  = Log_Format, level = logging.DEBUG)
+    logging.basicConfig(format = "%(levelname)s %(asctime)s: %(filename)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S', stream = sys.stderr, level = logging.DEBUG)
+    logging.addLevelName(logging.INFO, 'I' )
+    logging.addLevelName(logging.ERROR, 'E')
+    logging.addLevelName(logging.WARNING, 'W')
     main()
