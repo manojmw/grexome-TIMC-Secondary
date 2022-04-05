@@ -317,9 +317,9 @@ def Uniprot_ENSG(inPrimAC, ENSG_Gene_dict):
 #
 # Returns 2 dictionaries and 1 list:
 # First dictionary contains:
-# - key: Protein A; Value: Protein B
+# - key: Protein A; Value: List of interactors
 # Second dictionary contains:
-# key: Protein B; Value: Protein A
+# key: Protein B; Value: List of interactors
 # These dictionaries are later used to determine
 # the no. of interactors for a given protein/gene
 #
@@ -345,8 +345,21 @@ def Interacting_Proteins(inInteractome):
         Interactome_fields = line.split('\t')
 
         if Interactome_fields[0] != Interactome_fields[1]:
-            ProtA_dict[Interactome_fields[0]] = Interactome_fields[1]
-            ProtB_dict[Interactome_fields[1]] = Interactome_fields[0]
+            # Check if the Key(ProtA) exists in ProtA_dict
+            # If yes, then append the interctor to 
+            # the list of values (Interactors)
+            if ProtA_dict.get(Interactome_fields[0], False):
+                ProtA_dict[Interactome_fields[0]].append(Interactome_fields[1])
+            else:
+                ProtA_dict[Interactome_fields[0]] = [Interactome_fields[1]]
+
+            # Check if the Key(ProtB) exists in ProtB_dict
+            # If yes, then append the interctor to 
+            # the list of values (Interactors)
+            if ProtB_dict.get(Interactome_fields[1], False):
+                ProtB_dict[Interactome_fields[1]].append(Interactome_fields[0])
+            else:
+                ProtA_dict[Interactome_fields[1]] = [Interactome_fields[0]]    
 
             # Storing all the interactors in All_Interactors_list
             if not Interactome_fields[0] in All_Interactors_list:
@@ -406,13 +419,15 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
         # If Protein is the first protein
         if (All_Interactors_list[ENSG_index] in ProtA_dict.keys()):
             # Get the interacting protein
-            if not ProtA_dict[All_Interactors_list[ENSG_index]] in Interactors:
-                Interactors.append(ProtA_dict[All_Interactors_list[ENSG_index]])
+            for Interactor in ProtA_dict[All_Interactors_list[ENSG_index]]:
+                if not Interactor in Interactors:
+                    Interactors.append(Interactor)
         # If Protein is the Second protein
         elif (All_Interactors_list[ENSG_index] in ProtB_dict.keys()):
-            if not ProtB_dict[All_Interactors_list[ENSG_index]] in Interactors:
-                # Get the interacting protein
-                Interactors.append(ProtB_dict[All_Interactors_list[ENSG_index]])
+            # Get the interacting protein
+            for Interactor in ProtB_dict[All_Interactors_list[ENSG_index]]:
+                if not Interactor in Interactors:
+                    Interactors.append(Interactor)
 
         for i in range(len(pathologies_list)):
 
