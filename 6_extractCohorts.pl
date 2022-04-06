@@ -302,26 +302,30 @@ foreach my $i (0..$#headers) {
 
 # print new headers
 foreach my $cohorti (0..$#cohorts) {
-  # Array to store col indices of Interactome headers
-  # that match the current cohort
-  my @keepIntcoli;
 
-  # Array to store col indices of Interactome headers
+  # hash to store col indices of Interactome headers
+  # that match the current cohort
+  # key -> Col Index; Value = 1 
+  my %keepIntcoli;
+
+  # hash to store col indices of Interactome headers
   # that DO NOT match the current cohort
-  my @skipIntcoli;
+  # key -> Col Index; Value = 1 
+  my %skipIntcoli;
 
   foreach my $Intcohort (keys %cohortInteractome) {
 	  # If the key (cohort) in the hash matches the 
 	  # current cohort, then grab the Interactome 
 	  # col indices for the current cohort
     if ($Intcohort eq $cohorts[$cohorti]) {
-      @keepIntcoli = @{$cohortInteractome{$cohorts[$cohorti]}};
+      foreach my $cohortcoli(@{$cohortInteractome{$cohorts[$cohorti]}}) {
+        $keepIntcoli{$cohortcoli} = 1
       }
     else {
       # Storing the Interactome col indices of cohorts 
       # that do not  match the current cohort
       foreach my $unwantedcoli(@{$cohortInteractome{$Intcohort}}){
-        push (@skipIntcoli, $unwantedcoli);
+        $skipIntcoli{$unwantedcoli} = 1
       }
     }
   }
@@ -346,11 +350,11 @@ foreach my $cohorti (0..$#cohorts) {
     }
 
     # Print Interactome headers for the current cohort
-    elsif (grep{$i eq $_}@keepIntcoli) {
+    elsif (exists $keepIntcoli{$i}) {
       $toPrint .= "\t$headers[$i]";
     }
 
-    elsif (grep{$i eq $_}@skipIntcoli) {
+    elsif (exists $skipIntcoli{$i}) {
       #NOOP => skip Interactome headers that do match current cohort
     }
 
@@ -658,26 +662,29 @@ sub processBatch {
     foreach my $cohorti (0..$#$cohortsR) {
       my $cohort = $cohortsR->[$cohorti];
 
-      # Array to store col indices of Interactome fields
+      # hash to store col indices of Interactome fields
       # that match the current cohort
-      my @keepIntcoli;
+      # key -> Col Index; Value = 1 
+      my %keepIntcoli;
 
-      # Array to store col indices of Interactome fields 
+      # hash to store col indices of Interactome fields
       # that DO NOT match the current cohort
-      my @skipIntcoli;
+      # key -> Col Index; Value = 1 
+      my %skipIntcoli;
 
       foreach my $Intcohort (keys %cohortInteractome) {
         # If the key (cohort) in the hash matches the 
-	      # current cohort, then grab the Interactome 
-	      # col indices for the current cohort
+        # current cohort, then grab the Interactome 
+        # col indices for the current cohort
         if ($Intcohort eq $cohort) {
-          @keepIntcoli = @{$cohortInteractome{$cohorts[$cohorti]}};
-          }   
-	      else {
-	      	# Storing the Interactome col indices of cohorts 
-	      	# that do not  match the current cohort
-		      foreach my $unwantedcoli(@{$cohortInteractome{$Intcohort}}){
-            push (@skipIntcoli, $unwantedcoli);
+          foreach my $cohortcoli(@{$cohortInteractome{$cohort}}) {
+            $keepIntcoli{$cohortcoli} = 1
+          }
+        else {
+          # Storing the Interactome col indices of cohorts 
+          # that do not  match the current cohort
+          foreach my $unwantedcoli(@{$cohortInteractome{$Intcohort}}){
+            $skipIntcoli{$unwantedcoli} = 1
           }
         }
       }
@@ -708,10 +715,11 @@ sub processBatch {
         }
 
         # Print Interactome fields for the current cohort
-        elsif (grep{$i eq $_}@keepIntcoli) {
+        elsif (exists $keepIntcoli{$i}) {
           $toPrint .= "\t$fields[$i]";
           }
-        elsif (grep{$i eq $_}@skipIntcoli) {
+          
+        elsif (exists $skipIntcoli{$i}) {
           #NOOP => skip Interactome fields that do match current cohort
         }
 
