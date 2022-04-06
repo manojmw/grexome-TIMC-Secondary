@@ -321,6 +321,7 @@ foreach my $cohorti (0..$#cohorts) {
       foreach my $cohortcoli(@{$cohortInteractome{$cohorts[$cohorti]}}) {
         $keepIntcoli{$cohortcoli} = 1;
       }
+    }  
     else {
       # Storing the Interactome col indices of cohorts 
       # that do not  match the current cohort
@@ -680,6 +681,7 @@ sub processBatch {
           foreach my $cohortcoli(@{$cohortInteractome{$cohort}}) {
             $keepIntcoli{$cohortcoli} = 1;
           }
+        }  
         else {
           # Storing the Interactome col indices of cohorts 
           # that do not  match the current cohort
