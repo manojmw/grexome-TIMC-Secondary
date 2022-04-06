@@ -319,13 +319,13 @@ foreach my $cohorti (0..$#cohorts) {
 	  # col indices for the current cohort
     if ($Intcohort eq $cohorts[$cohorti]) {
       foreach my $cohortcoli(@{$cohortInteractome{$cohorts[$cohorti]}}) {
-        $keepIntcoli{$cohortcoli} = 1
+        $keepIntcoli{$cohortcoli} = 1;
       }
     else {
       # Storing the Interactome col indices of cohorts 
       # that do not  match the current cohort
       foreach my $unwantedcoli(@{$cohortInteractome{$Intcohort}}){
-        $skipIntcoli{$unwantedcoli} = 1
+        $skipIntcoli{$unwantedcoli} = 1;
       }
     }
   }
@@ -678,13 +678,13 @@ sub processBatch {
         # col indices for the current cohort
         if ($Intcohort eq $cohort) {
           foreach my $cohortcoli(@{$cohortInteractome{$cohort}}) {
-            $keepIntcoli{$cohortcoli} = 1
+            $keepIntcoli{$cohortcoli} = 1;
           }
         else {
           # Storing the Interactome col indices of cohorts 
           # that do not  match the current cohort
           foreach my $unwantedcoli(@{$cohortInteractome{$Intcohort}}){
-            $skipIntcoli{$unwantedcoli} = 1
+            $skipIntcoli{$unwantedcoli} = 1;
           }
         }
       }
@@ -718,7 +718,7 @@ sub processBatch {
         elsif (exists $keepIntcoli{$i}) {
           $toPrint .= "\t$fields[$i]";
           }
-          
+
         elsif (exists $skipIntcoli{$i}) {
           #NOOP => skip Interactome fields that do match current cohort
         }
