@@ -460,7 +460,9 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
                 p_value = 1
 
             if Known_Interactors:
-                Output_eachPatho = [len(Known_Interactors), Known_Interactors, p_value]
+                # Storing Known Interactors as a single comma seperated string
+                Known_InteractorsStr = ','.join(Known_Interactor for Known_Interactor in Known_Interactors)
+                Output_eachPatho = [len(Known_Interactors), Known_InteractorsStr, p_value]
             else:
                 Output_eachPatho = [len(Known_Interactors), '', p_value]
 
