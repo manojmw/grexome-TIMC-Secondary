@@ -155,6 +155,9 @@ if ($pathologies) {
 	die "E $0: cannot copy pathologies metadata to outDir: $!\n";
     $pathologies = "$outDir/".basename($pathologies);
 }
+# For 5.2_Interactome.py we will provide a space-seprated
+# candidate file names with full path
+my $candidateGenes_Int;
 
 my @candNew = ();
 if ($candidateGenes) {
@@ -167,6 +170,7 @@ if ($candidateGenes) {
 	push(@candNew, "$outDir/".basename($candFile));
     }
     $candidateGenes = join(',', @candNew);
+    $candidateGenes_Int = join(' ', @candNew);
 }
 
 my $now = strftime("%F %T", localtime);
@@ -281,7 +285,7 @@ if ($debug) {
 }
 
 # step 5.2
-$com .= " | python3 $RealBin/5.2_addInteractome.py --inPrimAC=".&UniProtFile($RealBin)." --inCandidateFile=$candidateGenes --inCanonicalFile=".&canonicalFile()." --inInteractome=".&InteractomeFile($RealBin)." ";
+$com .= " | python3 $RealBin/5.2_addInteractome.py --inPrimAC ".&UniProtFile($RealBin)." --inCandidateFile $candidateGenes_Int --inCanonicalFile ".&canonicalFile()." --inInteractome ".&InteractomeFile($RealBin)." ";
 if ($debug) {
     $com .= "2> $outDir/step5.2.err > $outDir/step5.2.out";
     system($com) && die "E $0: debug mode on, step5.2 failed: $?";
