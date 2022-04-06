@@ -221,7 +221,7 @@ my $numSamples = 0;
 my $caller;
 # try to find the caller name in $inFile
 foreach my $c ("Strelka", "GATK", "ElPrep") {
-    if ($inFile =~ /$c/) {
+    if ($inFile =~ /$c/i) {
 	$caller = $c;
 	warn "I $0: variant-caller id $caller will be appended to all filenames\n";
 	last;
