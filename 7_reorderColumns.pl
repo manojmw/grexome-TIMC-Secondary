@@ -45,31 +45,31 @@ my @titles = split(/\t/, $header);
 foreach my $i (0..$#titles) {
     my $title = $titles[$i];
     if (($title =~ /^COUNT_(\w+)_OTHERCAUSE_/) || ($title =~ /^(\w+)_OTHERCAUSE_/)) {
-	# replace $cohort with COHORT in COUNT_$cohort_OTHERCAUSE_* and
-	# in $cohort_OTHERCAUSE_* (only in $title not in @titles)
-	$title =~ s/$1/COHORT/;
+        # replace $cohort with COHORT in COUNT_$cohort_OTHERCAUSE_* and
+        # in $cohort_OTHERCAUSE_* (only in $title not in @titles)
+	    $title =~ s/$1/COHORT/;
     }
     elsif (($title !~ /NEGCTRL_/) && ($title !~ /COMPAT_/) &&
 	   (($title =~ /^COUNT_(\w+)_/) || ($title =~ /^(\w+)_HV$/) || ($title =~ /^(\w+)_HET$/))) {
-	# also replace $cohort with COHORT in COUNT_$cohort_* and in $cohort_* ,
-	# careful not to touch NEGCTRL or COMPAT or other random titles...
-	$title =~ s/$1/COHORT/;
+        # also replace $cohort with COHORT in COUNT_$cohort_* and in $cohort_* ,
+        # careful not to touch NEGCTRL or COMPAT or other random titles...
+        $title =~ s/$1/COHORT/;
     }
     # also replace $cohort with COHORT in $cohort_INTERACTORS_COUNT, $cohort_INTERACTORS and $cohort_INTERACTORS_PVALUE
-    elsif (($title =~ /(\w+)_INTERACTORS_COUNT$/) || ($title =~ /(\w+)_INTERACTORS$/) || ($title =~ /(\w+)_INTERACTORS_PVALUE$/)) {
-    $title =~ s/$1/COHORT/;
+    elsif (($title =~ /^(\w+)_INTERACTORS_COUNT$/) || ($title =~ /^(\w+)_INTERACTORS$/) || ($title =~ /^(\w+)_INTERACTORS_PVALUE$/)) {
+        $title =~ s/$1/COHORT/;
     }
 
     if (defined $title2index{$title}) {
-	($title2index{$title} == -1) &&
-	    die "E $0: title $titles[$i] was converted to $title but this has been seen already, fix the regexps!\n";
-	$old2new[$i] = $title2index{$title};
-	# set to -1 so we can make sure every @newOrder title was seen exactly once
-	$title2index{$title} = -1;
+        ($title2index{$title} == -1) &&
+            die "E $0: title $titles[$i] was converted to $title but this has been seen already, fix the regexps!\n";
+        $old2new[$i] = $title2index{$title};
+        # set to -1 so we can make sure every @newOrder title was seen exactly once
+        $title2index{$title} = -1;
     }
     else {
-	$old2new[$i] = $nextNotNewOrder;
-	$nextNotNewOrder++;
+        $old2new[$i] = $nextNotNewOrder;
+        $nextNotNewOrder++;
     }
 }
 
