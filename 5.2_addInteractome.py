@@ -77,25 +77,23 @@ def ENSG_Gene(inCanonicalFile):
 # Parses the candidateGenes file in .xlsx format
 # Required columns are: 'Gene' & 'pathologyID' 
 # (can be in any order, but they MUST exist)
+# Also parses {ENSG_Gene_dict} returned
+# by the function: ENSG_Gene
+# Maps Candidate Gene names to ENSG
 #
-# Returns a list with sublist(s)
-# One sublist per candidate gene
-# Each sublist contains:
-# - Gene
-# - pathologyID
-def CandidateGeneParser(inCandidateFile):
+# Returns a dictionary
+# - Key: ENSG of Candidate Gene
+# - Value: list of pathology(s)
+def CandidateGeneParser(inCandidateFile, ENSG_Gene_dict):
     
     # Input - List of candidate gene file(s)
     candidate_files = inCandidateFile
 
-    ## List to store data from candidate gene files
-    # This list contains sublist
-    # One sublist per gene
-    # Each sublist contains:
-    # - Gene name
-    # - pathologyID
-
-    CandidateGene_data = []
+    # Dictionary to store candidate genes
+    # and associated data
+    # Key: Candidate Gene
+    # Value: list of pathology(s)
+    CandidateGene_dict = {}
 
     # Data lines
     for file in candidate_files:
@@ -151,75 +149,66 @@ def CandidateGeneParser(inCandidateFile):
         # contain redundant keys
         for Gene_identifier in Gene_patho_dict:
             Gene_identifierF = Gene_identifier.split('_')
-            # Store the Gene name
-            Gene_name = Gene_identifierF[0]
-            # List with Gene name and corresponding pathologyID
-            Gene_Pathology = [Gene_name, Gene_patho_dict[Gene_identifier]]
-            CandidateGene_data.append(Gene_Pathology)
+
+            # Gene_identifierF[0] -> Gene name
+
+            for ENSG in ENSG_Gene_dict.keys():
+                if Gene_identifierF[0] == ENSG_Gene_dict[ENSG]:
+                    Gene = Gene_identifierF[0]
+                    break
             
-    return CandidateGene_data
+            Pathology = Gene_patho_dict[Gene_identifier]
+
+            # Check if the Gene exists in CandidateGene_dict
+            # Happens when same gene is associated with different pathology
+            # If Gene exists, then append the new pathology to the list of pathologies
+            if CandidateGene_dict.get(Gene, False):
+                # Avoid adding same pathology more than once
+                if not Pathology in CandidateGene_dict[Gene]:
+                    CandidateGene_dict[Gene].append(Pathology)
+            else:
+                CandidateGene_dict[Gene] = [Pathology]
+            
+    return CandidateGene_dict
 
 ###########################################################
 
-# Parses the dictionary {ENSG_Gene_dict} returned
-# by the function: ENSG_Gene
-# Also parses the list [CandidateGene_data]
+# Parses the dictionary {CandidateGene_dict}
 # returned by the function: CandidateGeneParser
 #
-# Maps Candidate Gene names to ENSG
-#
-# Returns 2 lists:
-# The first list contains sublists
-# One sublist per candidate ENSG
-# - ENSG identifier of candidate gene
-# - pathologyID
-#
-# The second list contains all the pathologies/Phenotypes
-def CandidateGene2ENSG(ENSG_Gene_dict, CandidateGene_data):
+# Returns a list containing all the pathologies/Phenotypes
+def getPathologies(CandidateGene_dict):
 
     # List of pathologies
     pathologies_list = []
 
-    # list to store data associated with each candidate gene
-    candidateENSG_out_list = []
+    for candidateGene in CandidateGene_dict:
+        for pathology in CandidateGene_dict[candidateGene]:
+            if not pathology in pathologies_list:
+                pathologies_list.append(pathology)
 
-    # Data lines
-    for data in CandidateGene_data:
-        # data[0] -> Candidate Gene
-        # data[1] -> pathologyID
-
-        # ENSG_Gene_dict: Key -> ENSG; Value -> Gene
-        for ENSG in ENSG_Gene_dict.keys():
-            # Check if candidate gene is present in ENSG_Gene_dict
-            if data[0] == ENSG_Gene_dict[ENSG]:
-                # Store the ENSG along with the corresponding pathologyID
-                candidateENSG_out = [ENSG,  data[1]]
-                candidateENSG_out_list.append(candidateENSG_out)
-
-        if not data[1] in pathologies_list:
-            pathologies_list.append(data[1])
-
-    return candidateENSG_out_list, pathologies_list
+    return pathologies_list
 
 ###########################################################
 
-# Parses the candidateENSG_out_list & pathologies_list
+# Parses the CandidateGene_dict & pathologies_list
 #
 # Counts the total number of candidate genes
 # associated with each pathology
 #
 # Returns a list with the total count candidate genes (for each pathology)
-def CountCandidateGenes(candidateENSG_out_list, pathologies_list):
+def CountCandidateGenes(CandidateGene_dict, pathologies_list):
 
     # List for counting total candidate genes
     # associated with each pathology
     pathology_CandidateCount = [0] * len(pathologies_list)
 
     # Data lines
-    for candidateGenedata in candidateENSG_out_list:
-        for i in range(len(pathologies_list)):
-            if candidateGenedata[1] == pathologies_list[i]:
-                pathology_CandidateCount[i] += 1
+    for candidateGene in CandidateGene_dict:
+        for pathology in CandidateGene_dict[candidateGene]:
+            for i in range(len(pathologies_list)):
+                if pathology == pathologies_list[i]:
+                    pathology_CandidateCount[i] += 1
 
     return pathology_CandidateCount
 
@@ -390,7 +379,7 @@ def Interacting_Proteins(inInteractome):
 # - Known Interactors count
 # - list of Known Interactors
 # - P-value
-def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateENSG_out_list, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs):
+def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs):
 
     # Dictionary to store Gene and
     # Interactome data associated with each pathology
@@ -413,24 +402,22 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
 
         Gene_AllPatho.append(All_Interactors_list[ENSG_index])
 
-        # Dictionary to store interactors
-        # Key: ENSG of Interactors
-        # Value: 1
-        Interactors = {}
+        # List of interactors
+        Interactors = []
 
         # If Protein is the first protein
         if (All_Interactors_list[ENSG_index] in ProtA_dict.keys()):
             # Get the interacting protein
-            for interactor in ProtA_dict[All_Interactors_list[ENSG_index]]:
-                if not interactor in Interactors.keys():
-                    Interactors[interactor] = 1
+            for Interactor in ProtA_dict[All_Interactors_list[ENSG_index]]:
+                if not Interactor in Interactors:
+                    Interactors.append(Interactor)
                     
         # If Protein is the Second protein
         if (All_Interactors_list[ENSG_index] in ProtB_dict.keys()):
             # Get the interacting protein
-            for interactor in ProtB_dict[All_Interactors_list[ENSG_index]]:
-                if not interactor in Interactors.keys():
-                    Interactors[interactor] = 1
+            for Interactor in ProtB_dict[All_Interactors_list[ENSG_index]]:
+                if not Interactor in Interactors:
+                    Interactors.append(Interactor)
 
         for i in range(len(pathologies_list)):
 
@@ -441,10 +428,11 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
             Output_eachPatho = []
 
             # Checking if the interactor is a known ENSG (candidate ENSG)
-            for candidateENSG in candidateENSG_out_list:
-                if candidateENSG[0] in Interactors.keys():
-                    if candidateENSG[1] == pathologies_list[i]:
-                        Known_Interactors.append(interactor)
+            for interactor in Interactors:
+                if interactor in CandidateGene_dict.keys():
+                    for pathology in CandidateGene_dict[interactor]:
+                        if pathology == pathologies_list[i]:
+                            Known_Interactors.append(interactor)
 
             # Getting the Gene name for Known Interactors
             for Known_InteractorIndex in range(len(Known_Interactors)):
@@ -494,13 +482,13 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
 def addInteractome(args):
 
     # Calling the functions
-    CandidateGene_data = CandidateGeneParser(args.inCandidateFile)
     ENSG_Gene_dict = ENSG_Gene(args.inCanonicalFile)
-    (ProtA_dict, ProtB_dict, All_Interactors_list) = Interacting_Proteins(args.inInteractome)
-    (candidateENSG_out_list, pathologies_list) = CandidateGene2ENSG(ENSG_Gene_dict, CandidateGene_data)
-    pathology_CandidateCount = CountCandidateGenes(candidateENSG_out_list, pathologies_list)
+    CandidateGene_dict = CandidateGeneParser(args.inCandidateFile, ENSG_Gene_dict)
+    pathologies_list = getPathologies(CandidateGene_dict)
+    pathology_CandidateCount = CountCandidateGenes(CandidateGene_dict, pathologies_list)
     Count_UniqueENSGs = Uniprot_ENSG(args.inPrimAC, ENSG_Gene_dict)
-    Gene_IntAllpatho = Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateENSG_out_list, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs)
+    (ProtA_dict, ProtB_dict, All_Interactors_list) = Interacting_Proteins(args.inInteractome)
+    Gene_IntAllpatho = Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs)
 
     # Take STDIN file as produced by 5.1_addGTEX.pl
     addGTEX_output = sys.stdin
