@@ -155,6 +155,7 @@ def CandidateGeneParser(inCandidateFile, ENSG_Gene_dict):
             for ENSG in ENSG_Gene_dict.keys():
                 if Gene_identifierF[0] == ENSG_Gene_dict[ENSG]:
                     Gene = ENSG
+                    break
             
             Pathology = Gene_patho_dict[Gene_identifier]
 
