@@ -413,22 +413,24 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
 
         Gene_AllPatho.append(All_Interactors_list[ENSG_index])
 
-        # List of interactors
-        Interactors = []
+        # Dictionary to store interactors
+        # Key: ENSG of Interactors
+        # Value: 1
+        Interactors = {}
 
         # If Protein is the first protein
         if (All_Interactors_list[ENSG_index] in ProtA_dict.keys()):
             # Get the interacting protein
-            for Interactor in ProtA_dict[All_Interactors_list[ENSG_index]]:
-                if not Interactor in Interactors:
-                    Interactors.append(Interactor)
+            for interactor in ProtA_dict[All_Interactors_list[ENSG_index]]:
+                if not interactor in Interactors.keys():
+                    Interactors[interactor] = 1
                     
         # If Protein is the Second protein
         if (All_Interactors_list[ENSG_index] in ProtB_dict.keys()):
             # Get the interacting protein
-            for Interactor in ProtB_dict[All_Interactors_list[ENSG_index]]:
-                if not Interactor in Interactors:
-                    Interactors.append(Interactor)
+            for interactor in ProtB_dict[All_Interactors_list[ENSG_index]]:
+                if not interactor in Interactors.keys():
+                    Interactors[interactor] = 1
 
         for i in range(len(pathologies_list)):
 
@@ -439,11 +441,10 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, candidateEN
             Output_eachPatho = []
 
             # Checking if the interactor is a known ENSG (candidate ENSG)
-            for interactor in Interactors:
-                for candidateENSG in candidateENSG_out_list:
-                    if interactor in candidateENSG:
-                        if candidateENSG[1] == pathologies_list[i]:
-                            Known_Interactors.append(interactor)
+            for candidateENSG in candidateENSG_out_list:
+                if candidateENSG[0] in Interactors.keys():
+                    if candidateENSG[1] == pathologies_list[i]:
+                        Known_Interactors.append(interactor)
 
             # Getting the Gene name for Known Interactors
             for Known_InteractorIndex in range(len(Known_Interactors)):
