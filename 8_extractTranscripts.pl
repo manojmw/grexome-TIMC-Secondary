@@ -258,7 +258,7 @@ while (my $inFile = readdir(INDIR)) {
 	    $destCols[$hi] = $keptCols{$headers[$hi]};
 	    ($headers[$hi] eq "Feature") && ($transCol = $hi);
 	}
-	elsif (($headers[$hi] =~ /(\w+)_INTERACTORS_COUNT$/) || ($headers[$hi] =~ /(\w+)_INTERACTORS$/) || ($headers[$hi] =~ /(\w+)_INTERACTORS_PVALUE$/)) {
+	elsif (($headers[$hi] =~ /^(\w+)_INTERACTORS_COUNT$/) || ($headers[$hi] =~ /^(\w+)_INTERACTORS$/) || ($headers[$hi] =~ /^(\w+)_INTERACTORS_PVALUE$/)) {
 	    $destCols[$hi] = -2;
 	    $newHeaders .= "\t$headers[$hi]";
 	}

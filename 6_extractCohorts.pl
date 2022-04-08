@@ -275,7 +275,7 @@ foreach my $i (0..$#headers) {
   # storing the Interactome col in array
   my @Interactomecoli;
   # Matching Interactome headers
-  if ($headers[$i] =~ /_INTERACTORS_COUNT$|_INTERACTORS$|_INTERACTORS_PVALUE$/) {
+  if ($headers[$i] =~ /^\w+_INTERACTORS_COUNT$|^\w+_INTERACTORS$|^\w+_INTERACTORS_PVALUE$/) {
     # Getting the cohort name from the Interactome header
     # In each Interactome header, the cohort name
     # is separated by an '_', we split at the '_'
