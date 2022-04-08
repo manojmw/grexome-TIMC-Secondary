@@ -20,36 +20,10 @@ use File::Basename qw(basename);
 $0 = basename($0);
 
 
-my $header = <STDIN>;
-chomp($header);
-my @titles = split(/\t/, $header);
-
-# Array to store reordered titles
 # columns to be printed first, in that order (replace COHORT
 # with the current cohort)
-my @newOrder;
+my @newOrder = qw(POSITION REF ALT SYMBOL KNOWN_CANDIDATE_GENE COHORT_INTERACTORS_COUNT COHORT_INTERACTORS COHORT_INTERACTORS_PVALUE COUNT_HR COUNT_COHORT_HV COUNT_COHORT_HET COUNT_COHORT_OTHERCAUSE_HV COUNT_COHORT_OTHERCAUSE_HET COUNT_COMPAT_HV COUNT_COMPAT_HET COUNT_NEGCTRL_HV COUNT_NEGCTRL_HET COUNT_OTHERGENO IMPACT Consequence HGVSc HGVSp Protein_position gnomAD_AF COHORT_HV COHORT_HET COHORT_OTHERCAUSE_HV COHORT_OTHERCAUSE_HET COMPAT_HV COMPAT_HET GTEX_testis_RATIO GTEX_ovary_RATIO GTEX_testis GTEX_ovary GTEX_blood GTEX_cerebellar_hemisphere GTEX_liver GTEX_lung);
 
-# Some input files contain Interactome data
-# such as those cohorts that have candidate genes
-# in the candidate genes file
-# While other files (such as a new phenotype/cohort, control)
-# do not contain Interactome data. So we test this using the headers
-# of the stdin file and bulid the newOrder titles accordingly
-
-# If infile contains Interactome data,
-# the following headers will be present
-# - COHORT_INTERACTORS_COUNT
-# - COHORT_INTERACTORS
-# - COHORT_INTERACTORS_PVALUE
-
-# Checking if header line contains Interactome header
-if (($header =~ /_INTERACTORS_COUNT/) && ($header =~ /_INTERACTORS/) && ($header =~ /_INTERACTORS_PVALUE/)) {
-    @newOrder = qw(POSITION REF ALT SYMBOL KNOWN_CANDIDATE_GENE COHORT_INTERACTORS_COUNT COHORT_INTERACTORS COHORT_INTERACTORS_PVALUE COUNT_HR COUNT_COHORT_HV COUNT_COHORT_HET COUNT_COHORT_OTHERCAUSE_HV COUNT_COHORT_OTHERCAUSE_HET COUNT_COMPAT_HV COUNT_COMPAT_HET COUNT_NEGCTRL_HV COUNT_NEGCTRL_HET COUNT_OTHERGENO IMPACT Consequence HGVSc HGVSp Protein_position gnomAD_AF COHORT_HV COHORT_HET COHORT_OTHERCAUSE_HV COHORT_OTHERCAUSE_HET COMPAT_HV COMPAT_HET GTEX_testis_RATIO GTEX_ovary_RATIO GTEX_testis GTEX_ovary GTEX_blood GTEX_cerebellar_hemisphere GTEX_liver GTEX_lung);
-}
-# else is executed if no Interactome data in the infile
-else {
-    @newOrder = qw(POSITION REF ALT SYMBOL KNOWN_CANDIDATE_GENE COUNT_HR COUNT_COHORT_HV COUNT_COHORT_HET COUNT_COHORT_OTHERCAUSE_HV COUNT_COHORT_OTHERCAUSE_HET COUNT_COMPAT_HV COUNT_COMPAT_HET COUNT_NEGCTRL_HV COUNT_NEGCTRL_HET COUNT_OTHERGENO IMPACT Consequence HGVSc HGVSp Protein_position gnomAD_AF COHORT_HV COHORT_HET COHORT_OTHERCAUSE_HV COHORT_OTHERCAUSE_HET COMPAT_HV COMPAT_HET GTEX_testis_RATIO GTEX_ovary_RATIO GTEX_testis GTEX_ovary GTEX_blood GTEX_cerebellar_hemisphere GTEX_liver GTEX_lung);
-}
 
 # build hash of @newOrder headers, value is the new column index
 # for that header
@@ -65,13 +39,15 @@ my @old2new;
 # index where we want the next not-newOrder column to go
 my $nextNotNewOrder = scalar(@newOrder);
 
-# Parsing headers
+my $header = <STDIN>;
+chomp($header);
+my @titles = split(/\t/, $header);
 foreach my $i (0..$#titles) {
     my $title = $titles[$i];
     if (($title =~ /^COUNT_(\w+)_OTHERCAUSE_/) || ($title =~ /^(\w+)_OTHERCAUSE_/)) {
         # replace $cohort with COHORT in COUNT_$cohort_OTHERCAUSE_* and
         # in $cohort_OTHERCAUSE_* (only in $title not in @titles)
-	    $title =~ s/$1/COHORT/;
+        $title =~ s/$1/COHORT/;
     }
     elsif (($title !~ /NEGCTRL_/) && ($title !~ /COMPAT_/) &&
 	   (($title =~ /^COUNT_(\w+)_/) || ($title =~ /^(\w+)_HV$/) || ($title =~ /^(\w+)_HET$/))) {
