@@ -496,6 +496,7 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
 # Function takes args
 # - Canonical transcripts file
 # - Candidate Gene(s) file
+# - Sample metadata file
 # - UniProt Primary Accession file
 # - Interactome file
 #
@@ -550,10 +551,10 @@ def addInteractome(args):
     # Patho_header_list is a list containing sublists
     # One sublist per pathology (COHORT)
     # Each Sublist contains following header names:
-    # - patho_INTERACTORS_COUNT
-    # - patho_INTERACTORS
-    # - patho_INTERACTORS_PVALUE
-    Patho_header_list = [[patho+'_INTERACTORS_COUNT', patho+'_INTERACTORS', patho+'_INTERACTORS_PVALUE'] for patho in pathologies_list]
+    # - patho-INTERACTORS_COUNT
+    # - patho-INTERACTORS
+    # - patho-INTERACTORS_PVALUE
+    Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE'] for patho in pathologies_list]
 
     # Initializing a list to store all
     # all the elements of a sublist in a
