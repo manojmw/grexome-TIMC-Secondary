@@ -285,7 +285,7 @@ if ($debug) {
 }
 
 # step 5.2
-$com .= " | python3 $RealBin/5.2_addInteractome.py --inPrimAC ".&UniProtFile($RealBin)." --inCandidateFile $candidateGenes_Int --inCanonicalFile ".&canonicalFile()." --inInteractome ".&InteractomeFile($RealBin)." ";
+$com .= " | python3 $RealBin/5.2_addInteractome.py --inSampleFile $samples --inPrimAC ".&UniProtFile($RealBin)." --inCandidateFile $candidateGenes_Int --inCanonicalFile ".&canonicalFile()." --inInteractome ".&InteractomeFile($RealBin)." ";
 if ($debug) {
     $com .= "2> $outDir/step5.2.err > $outDir/step5.2.out";
     system($com) && die "E $0: debug mode on, step5.2 failed: $?";
