@@ -63,13 +63,13 @@ $0 = basename($0);
 ## hard-coded stuff that shouldn't change much
 
 # columns we want to keep, in this order:
-my @keptColumns = qw(SYMBOL KNOWN_CANDIDATE_GENE Feature CANONICAL BIOTYPE Gene RefSeq);
+my @keptColumns = qw(SYMBOL KNOWN_CANDIDATE_GENE Feature CANONICAL BIOTYPE Gene RefSeq INTERACTORS_COUNT INTERACTORS INTERACTORS_PVALUE);
 # in addition we insert the new COUNTSAMPLES* columns right after the last @keptColumns
 # and immediately followed by the HV_HIGH et al colums, and we then copy all 
-# the Interactome columns and GTEX_* columns (in the same order as in infile)
+# the GTEX_* columns (in the same order as in infile)
 
 # among the @keptColumns some have cohort-specific data: list them
-my @keptColumnsSpecific = qw(KNOWN_CANDIDATE_GENE);
+my @keptColumnsSpecific = qw(KNOWN_CANDIDATE_GENE INTERACTORS_COUNT INTERACTORS INTERACTORS_PVALUE);
 
 
 # also for convenience: the types of samples to count
@@ -160,10 +160,9 @@ foreach my $col (@keptColumnsSpecific) {
 # COMMON DATA: 
 # %transcript2start: key==$transcript, value==arrayref holding the start-of-line 
 # common data for this transcript (one value per column), the cohort-specific
-# fields are left undefined (only KNOWN_CANDIDATE_GENE currently)
+# fields are left undefined (only KNOWN_CANDIDATE_GENE INTERACTORS_COUNT 
+# INTERACTORS INTERACTORS_PVALUE currently)
 my %transcript2start;
-# %transcript2Interactome: key==$transcript, value==Interactome data to print (starting with \t)
-my %transcript2Interactome;
 # %transcript2gtex: key==$transcript, value==GTEX data to print (starting with \t)
 my %transcript2gtex;
 # also remember CHR and POS (the smallest POS we see in any cohort for a variant
@@ -224,7 +223,6 @@ while (my $inFile = readdir(INDIR)) {
     my ($hvCol,$hetCol,$hvColOC,$hetColOC) = (-1,-1,-1,-1);
     # @destCols and @destColsSpec: for each column $i in infile: 
     # if $destCols[$i] >= 0 it is the column where that info goes in transcript2start
-	# elsif $destCols[$i] == -2 source column is a Interactome
     # elsif $destCols[$i] == -1 source column is a GTEX
     # elsif $destColsSpec[$i] it is the column where it goes in transcript2cohort2start
     my @destCols = ();
@@ -252,15 +250,11 @@ while (my $inFile = readdir(INDIR)) {
     $newHeaders .= "\tCOMPAT_BIALLELIC_MODHIGH+";
     $newHeaders .= "\tNEGCTRL_BIALLELIC_MODHIGH+";
     
-    # Interactome and GTEX headers are added when parsing $headers and filling @destCols
+    # GTEX headers are added when parsing $headers and filling @destCols
     foreach my $hi (0..$#headers) {
 	if (defined $keptCols{$headers[$hi]}) {
 	    $destCols[$hi] = $keptCols{$headers[$hi]};
 	    ($headers[$hi] eq "Feature") && ($transCol = $hi);
-	}
-	elsif (($headers[$hi] =~ /^(\w+)_INTERACTORS_COUNT$/) || ($headers[$hi] =~ /^(\w+)_INTERACTORS$/) || ($headers[$hi] =~ /^(\w+)_INTERACTORS_PVALUE$/)) {
-	    $destCols[$hi] = -2;
-	    $newHeaders .= "\t$headers[$hi]";
 	}
 	elsif ($headers[$hi] =~ /^GTEX_/) {
 	    $destCols[$hi] = -1;
@@ -314,7 +308,7 @@ while (my $inFile = readdir(INDIR)) {
 
 	my $transcript = $fields[$transCol];
 	if (! $transcript2start{$transcript}) {
-	    # first time we see $transcript, fill chr, coord, start, Interactome and gtex
+	    # first time we see $transcript, fill chr, coord, start and gtex
 	    # for sorting we want just the chrom number, replace X Y M by 23-25
 	    if ($chr eq "X") { $transcript2chr{$transcript} = "23" }
 	    elsif ($chr eq "Y") { $transcript2chr{$transcript} = "24" }
@@ -323,7 +317,6 @@ while (my $inFile = readdir(INDIR)) {
 	    $transcript2coord{$transcript} = $coord;
 
 	    my @start = ();
-		my $Interactome = "";
 	    my $gtex = "";
 	    foreach my $fi (0..$#fields) {
 		if (!defined($destCols[$fi])) {
@@ -332,15 +325,11 @@ while (my $inFile = readdir(INDIR)) {
 		elsif ($destCols[$fi] >= 0) {
 		    $start[$destCols[$fi]] = $fields[$fi];
 		}
-		elsif ($destCols[$fi] == -2) {
-		    $Interactome .= "\t$fields[$fi]";
-		}
 		elsif ($destCols[$fi] == -1) {
 		    $gtex .= "\t$fields[$fi]";
 		}
 	    }
 	    $transcript2start{$transcript} = \@start;
-		$transcript2Interactome{$transcript} = $Interactome;
 	    $transcript2gtex{$transcript} = $gtex;
 	    # also initialize %transcript2cohort2samples, %transcript2cohort2samplesOC,
 	    # and %transcript2cohort2start with empty hashrefs
@@ -585,7 +574,7 @@ foreach my $transcript (@transcripts) {
 	}
     }
 
-    # now finish building $toPrint, adding the lists of samples, Interactome data and GTEX data
+    # now finish building $toPrint, adding the lists of samples and GTEX data
     foreach my $cohort (keys(%toPrint)) {
 	my $toPrint = $toPrint{$cohort};
 	# the 6 cohort samplelists
@@ -620,9 +609,6 @@ foreach my $transcript (@transcripts) {
 	}
 	$toPrint .= "\t".join(',',sort(@compat));
 	$toPrint .= "\t".join(',',sort(@negctrl));
-
-	# transcript2Interactome already starts with \t
-	$toPrint .= $transcript2Interactome{$transcript};
 
 	# transcript2gtex already starts with \t
 	$toPrint .= $transcript2gtex{$transcript};
