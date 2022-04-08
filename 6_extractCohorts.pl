@@ -261,9 +261,9 @@ foreach my $geno ("HV","HET","OTHER","HR") {
 }
 
 # There are 3 Interactome headers for each patholgoy/cohort
-# - COHORT_INTERACTORS_COUNT
-# - COHORT_INTERACTORS
-# - COHORT_INTERACTORS_PVALUE
+# - COHORT-INTERACTORS_COUNT
+# - COHORT-INTERACTORS
+# - COHORT-INTERACTORS_PVALUE
 # Initializng an hash to store cohort name
 # and thier corresponding column indices in infile
 # Key -> COHORT name; Value -> array reference of column indices
@@ -275,12 +275,12 @@ foreach my $i (0..$#headers) {
   # storing the Interactome col in array
   my @Interactomecoli;
   # Matching Interactome headers
-  if ($headers[$i] =~ /^\w+_INTERACTORS_COUNT$|^\w+_INTERACTORS$|^\w+_INTERACTORS_PVALUE$/) {
+  if ($headers[$i] =~ /^\w+-INTERACTORS_COUNT$|^\w+-INTERACTORS$|^\w+-INTERACTORS_PVALUE$/) {
     # Getting the cohort name from the Interactome header
     # In each Interactome header, the cohort name
-    # is separated by an '_', we split at the '_'
+    # is separated by an '-', we split at the '-'
     # This returns a list with cohort name as the first item
-    my @splitInteractomeheader = split('_', $headers[$i]);
+    my @splitInteractomeheader = split('-', $headers[$i]);
 	# Checking if key (COHORT) exists in the hash
 	# If it exists, then we get the value
 	# append the new col index to this and store it in an array
@@ -352,7 +352,15 @@ foreach my $cohorti (0..$#cohorts) {
 
     # Print Interactome headers for the current cohort
     elsif (exists $keepIntcoli{$i}) {
-      $toPrint .= "\t$headers[$i]";
+      # Since extractCohorts.pl produces seperate files
+      # for each cohort, we need not print the cohort name
+      # again in the Interactome header
+      # so, we remove the cohort name
+      # keeping the remaining header data 
+      # (Ex: COHORT-INTERACTORS_COUNT would be printed
+      # as INTERACTORS_COUNT)
+      my @Intheader = split('-', $headers[$i])
+      $toPrint .= "\t$Intheader[1]";
     }
 
     elsif (exists $skipIntcoli{$i}) {
