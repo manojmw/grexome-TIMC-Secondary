@@ -359,7 +359,7 @@ foreach my $cohorti (0..$#cohorts) {
       # keeping the remaining header data 
       # (Ex: COHORT-INTERACTORS_COUNT would be printed
       # as INTERACTORS_COUNT)
-      my @Intheader = split('-', $headers[$i])
+      my @Intheader = split('-', $headers[$i]);
       $toPrint .= "\t$Intheader[1]";
     }
 
