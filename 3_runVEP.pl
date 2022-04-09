@@ -252,17 +252,19 @@ Arguments (all can be abbreviated to shortest unambiguous prefixes):
 	}
     }
 
-    # merge VCFs for last chrom
-    $now = strftime("%F %T", localtime);
-    warn "I $now: $0 - finished parsing/processing chrom $prevChr\n";
-    close($VCFVEP);
-    close($VCFCACHE);
-    # merge last chr files
-    &mergeAndPrint($vcfFromVep, $vcfFromCache, $cacheUpdate);
-    unlink($vcfFromVep, $vcfFromCache);
+    # merge VCFs for last chrom, unless stdin was completely empty
+    if ($prevChr) {
+	$now = strftime("%F %T", localtime);
+	warn "I $now: $0 - finished parsing/processing chrom $prevChr\n";
+	close($VCFVEP);
+	close($VCFCACHE);
+	# merge last chr files
+	&mergeAndPrint($vcfFromVep, $vcfFromCache, $cacheUpdate);
+	unlink($vcfFromVep, $vcfFromCache);
 
-    # update cache with new CSQs
-    &updateCache($cacheFile, $cacheUpdate, $debug);
+	# update cache with new CSQs
+	&updateCache($cacheFile, $cacheUpdate, $debug);
+    }
 
     # clean up
     unlink($vepStats) || die "E $0: cannot unlink vepStats file $vepStats\n";
@@ -443,7 +445,8 @@ sub checkHeaders {
 # Header lines are ignored.
 # $vcfFromVep and $vcfFromCache must both concern a single identical CHROM.
 # All CSQs in $vcfFromVep are added to $cacheUpdate, a hashref similar
-# to $cache: key=="chr:pos:ref:alt", value==CSQ
+# to $cache: key=="chr:pos:ref:alt" for SNVs/indels and "chrom:pos:ref:alt:end"
+# for CNVs, value==CSQ
 sub mergeAndPrint {
     (@_ == 3) || die "E $0: mergeAndPrint needs 3 args";
     my ($vcfFromVep, $vcfFromCache, $cacheUpdate) = @_;
