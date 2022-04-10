@@ -364,7 +364,7 @@ foreach my $cohorti (0..$#cohorts) {
     }
 
     elsif (exists $skipIntcoli{$i}) {
-      #NOOP => skip Interactome headers that do match current cohort
+      #NOOP => skip Interactome headers that do not match current cohort
     }
 
     elsif ($i == $genoCols{"HV"}) {
@@ -520,7 +520,6 @@ die "E $now: $0 - all done but cannot rmdir tmpDir $tmpDir, why? $!\n";
 warn "I $now: $0 - ALL DONE, completed successfully!\n";
 
 
-
 #############################################
 ## subs
 
@@ -538,180 +537,42 @@ warn "I $now: $0 - ALL DONE, completed successfully!\n";
 # - $tmpSeen, a filehandle open for writing, we will print one line per different
 #   candidate gene seen in this batch of lines
 sub processBatch {
-    (@_ == 10) || die "E $0: processBatch needs 10 args\n";
-    my ($linesR,$knownCandidateGenesR,$sample2cohortR,$cohortsR,$sample2causalR,
-	$compatibleR,$symbolCol,$genoColsR,$tmpOutFilesR,$tmpSeen) = @_;
+  (@_ == 10) || die "E $0: processBatch needs 10 args\n";
+  my ($linesR,$knownCandidateGenesR,$sample2cohortR,$cohortsR,$sample2causalR,
+  $compatibleR,$symbolCol,$genoColsR,$tmpOutFilesR,$tmpSeen) = @_;
 
-    # key == known candidate gene seen in this batch of lines, value==1
-    my %candidatesSeen = ();
+  # key == known candidate gene seen in this batch of lines, value==1
+  my %candidatesSeen = ();
 
-    foreach my $line (@$linesR) {
-	my @fields = split(/\t/, $line, -1) ;
+  foreach my $line (@$linesR) {
+    my @fields = split(/\t/, $line, -1) ;
 
-	# $symbol doesn't depend on cohorts
-	my $symbol = $fields[$symbolCol];
+    # $symbol doesn't depend on cohorts
+    my $symbol = $fields[$symbolCol];
 
-	# we can immediately mark $symbol as seen if it's a candidate gene for any cohort
-	($knownCandidateGenesR->{$symbol}) && ($candidatesSeen{$symbol} = 1);
-    	
-	# array of references (to sampleList arrays), one per cohort, same order
-	# as in $cohortsR:
-	# each element of @cohort2samplelists is a ref to a sampleLists array, ie
-	# for each $cohort we build an array of 8 lists of samples (from the HV and
-	# HET columns), in the following order and as defined at the top of this file:
-	# $cohort_HV, $cohort_HET, $cohort_OTHERCAUSE_HV, $cohort_OTHERCAUSE_HET,
-	# COMPAT_HV, COMPAT_HET, NEGCTRL_HV, NEGCTRL_HET
-	# Each "list of samples" is actually a "genoData", ie it could look like:
-	# 0/1~sample0112[39:0.95],sample0129[43:1.00]
-	# If there is no sample in the category the array element remains empty.
-	my @cohort2sampleLists;
+    # we can immediately mark $symbol as seen if it's a candidate gene for any cohort
+    ($knownCandidateGenesR->{$symbol}) && ($candidatesSeen{$symbol} = 1);
 
-	# similary for each cohort store a ref to an array of 8 COUNTs corresponding
-	# to the sampleLists
-	my @cohort2SLcounts;
+    # array of references (to sampleList arrays), one per cohort, same order
+    # as in $cohortsR:
+    # each element of @cohort2samplelists is a ref to a sampleLists array, ie
+    # for each $cohort we build an array of 8 lists of samples (from the HV and
+    # HET columns), in the following order and as defined at the top of this file:
+    # $cohort_HV, $cohort_HET, $cohort_OTHERCAUSE_HV, $cohort_OTHERCAUSE_HET,
+    # COMPAT_HV, COMPAT_HET, NEGCTRL_HV, NEGCTRL_HET
+    # Each "list of samples" is actually a "genoData", ie it could look like:
+    # 0/1~sample0112[39:0.95],sample0129[43:1.00]
+    # If there is no sample in the category the array element remains empty.
+    my @cohort2sampleLists;
 
-	# initialize both arrays with refs to arrays holding empty strings / zeroes
-	foreach my $cohorti (0..$#$cohortsR) {
-	    $cohort2sampleLists[$cohorti] = ["","","","","","","",""];
-	    $cohort2SLcounts[$cohorti] = [0,0,0,0,0,0,0,0];
-	}
-	
-	# parse the HV and HET data fields and fill @cohort2samplelists,
-	# @genoNames MUST BE in same order as in @cohort2sampleLists
-	my @genoNames = ("HV","HET");
-	foreach my $gni (0..$#genoNames) {
-	    my $genoData = $fields[$genoColsR->{$genoNames[$gni]}];
-	    # skip if no sample has this genotype
-	    ($genoData) || next;
-	    # sanity: at most one genotype (except for OTHER column)
-	    ($genoData =~ /\|/) &&
-		die "E $0: more than one genotype for geno $genoNames[$gni], impossible. Line:\n$line\n";
-	    ($genoData =~ /^(\d+\/\d+)~([^~\|]+)$/) ||
-		die "E $0: cannot parse GENOS data $genoData in line:\n$line\n";
-	    # $geno is the genotype (eg 1/1 or 0/2)
-	    my $geno = $1;
-	    my @samples = split(/,/,$2);
-	    foreach my $sample (@samples) {
-		my $sampleID = $sample;
-		# remove trailing [DP:AF] / [BF:RR] if it's there (allowing AF > 1 for Strelka bug)
-		$sampleID =~ s/\[\d+:\d+\.\d\d?\]$//;
-		# sanity check
-		(defined $sample2cohortR->{$sampleID}) ||
-		    die "E $0: sampleID $sampleID doesn't exist, sample was $sample\n";
+    # similary for each cohort store a ref to an array of 8 COUNTs corresponding
+    # to the sampleLists
+    my @cohort2SLcounts;
 
-		foreach my $cohorti (0..$#$cohortsR) {
-		    my $cohort = $cohortsR->[$cohorti];
-		    if ($sample2cohortR->{$sampleID} eq $cohort) {
-			# $sample belongs to $cohort
-			if ((! defined $sample2causalR->{$sampleID}) || ($sample2causalR->{$sampleID} eq $symbol)) {
-			    # sample has no causal gene or it's the current gene: add to $cohort_HV or HET
-			    if ($cohort2sampleLists[$cohorti]->[$gni]) {
-				$cohort2sampleLists[$cohorti]->[$gni] .= ",$sample";
-			    }
-			    else {
-				$cohort2sampleLists[$cohorti]->[$gni] = "$geno~$sample";
-			    }
-			    $cohort2SLcounts[$cohorti]->[$gni]++;
-			}
-			else {
-			    # sample has a causal variant in another gene: OTHERCAUSE is at index 2+$gni
-			    if ($cohort2sampleLists[$cohorti]->[2+$gni]) {
-				$cohort2sampleLists[$cohorti]->[2+$gni] .= ",$sample";
-			    }
-			    else {
-				$cohort2sampleLists[$cohorti]->[2+$gni] = "$geno~$sample";
-			    }
-			    $cohort2SLcounts[$cohorti]->[2+$gni]++;
-			}
-		    }
-		    elsif (defined $compatibleR->{$sample2cohortR->{$sampleID}}->{$cohort}) {
-			# $sample belongs to a cohort compatible with $cohort, store at index 4+$gni
-			if ($cohort2sampleLists[$cohorti]->[4+$gni]) {
-			    $cohort2sampleLists[$cohorti]->[4+$gni] .= ",$sample";
-			}
-			else {
-			    $cohort2sampleLists[$cohorti]->[4+$gni] = "$geno~$sample";
-			}
-			$cohort2SLcounts[$cohorti]->[4+$gni]++;
-		    }
-		    else {
-			# $sample belongs to another cohort, use as NEGCTRL ie index 6+$gni
-			if ($cohort2sampleLists[$cohorti]->[6+$gni]) {
-			    $cohort2sampleLists[$cohorti]->[6+$gni] .= ",$sample";
-			}
-			else {
-			    $cohort2sampleLists[$cohorti]->[6+$gni] = "$geno~$sample";
-			}
-			$cohort2SLcounts[$cohorti]->[6+$gni]++;
-		    }
-		}
-	    }
-	}
-
-	# OTHERGENO is the same for every $cohort, it's simply copied:
-	my $otherGeno = $fields[$genoColsR->{"OTHER"}];
-	# COUNT the otherGeno samples: set to zero if empty, otherwise 
-	# we have |-separated lists of different genotypes and each
-	# of these is a  ,-separated lists of samples... therefore every
-	# sample is followed by , or | except the last sample
-	my $otherGenoCount = 0;
-	if ($otherGeno) {
-	    my @otherGenoCount = ($otherGeno =~ /[,|]/g);
-	    $otherGenoCount = 1 + scalar(@otherGenoCount);
-	}
-
-	# COUNT_HR is also the same for every cohort, use the same method
-	my $hrCount = 0;
-	if ($fields[$genoColsR->{"HR"}]) {
-	    my @hrCount = ($fields[$genoColsR->{"HR"}] =~ /[,|]/g);
-	    $hrCount = 1 + scalar(@hrCount);
-	}
-
-  	# OK, now print stuff for every cohort that has at least one sample in
-	# $cohort_HV or $cohort_HET or $cohort_OTHERCAUSE_*
-	foreach my $cohorti (0..$#$cohortsR) {
-	    my $cohort = $cohortsR->[$cohorti];
-
-	    # skip if no HV or HET sample (possibly with other known causal variant)
-	    # in this cohort
-	    ($cohort2SLcounts[$cohorti]->[0] > 0) || ($cohort2SLcounts[$cohorti]->[1] > 0) ||
-		($cohort2SLcounts[$cohorti]->[2] > 0) || ($cohort2SLcounts[$cohorti]->[3] > 0) || next;
-
-	    # OK we have some data to print for $cohort
-	    # always keep first field 
-	    my $toPrint = "$fields[0]";
-	    foreach my $i (1..$#fields) {
-		if ($i == $symbolCol) {
-		    # prepend apostrophe-space to gene names to avoid excel corrupting everything
-		    $toPrint .= "\t\' $fields[$i]\t";
-
-		    # KNOWN_CAND column:
-		    if ($knownCandidateGenesR->{$fields[$i]}) {
-			$toPrint .= $knownCandidateGenesR->{$fields[$i]};
-		    }
-		    # else: not a known candidate for any patho, leave empty
-		    
-		    # print all cohort-specific COUNTs
-		    $toPrint .= "\t".join("\t",@{$cohort2SLcounts[$cohorti]});
-		    # also print OTHERGENO and HR counts
-		    $toPrint .= "\t$otherGenoCount\t$hrCount";
-		}
-		elsif ($i == $genoColsR->{"HV"}) {
-		    # HV -> print all 8 sampleLists followed by OTHERGENO column
-		    $toPrint .= "\t".join("\t",@{$cohort2sampleLists[$cohorti]});
-		    $toPrint .= "\t$otherGeno";
-		}
-		elsif (($i == $genoColsR->{"HET"}) || ($i == $genoColsR->{"OTHER"}) ||
-		       ($i == $genoColsR->{"HR"})) {
-		    # NOOP: skip these columns
-		}
-		else {
-		    # print other columns as-is
-		    $toPrint .= "\t$fields[$i]";
-		}
-	    }
-	    print { $tmpOutFilesR->[$cohorti] } "$toPrint\n";
-	}
+    # initialize both arrays with refs to arrays holding empty strings / zeroes
+    foreach my $cohorti (0..$#$cohortsR) {
+      $cohort2sampleLists[$cohorti] = ["","","","","","","",""];
+      $cohort2SLcounts[$cohorti] = [0,0,0,0,0,0,0,0];
     }
 
     # parse the HV and HET data fields and fill @cohort2samplelists,
@@ -731,8 +592,8 @@ sub processBatch {
       my @samples = split(/,/,$2);
       foreach my $sample (@samples) {
         my $sampleID = $sample;
-        # remove trailing [DP:AF] if it's there (allowing AF > 1 for Strelka bug)
-        $sampleID =~ s/\[\d+:\d+\.\d\d\]$//;
+        # remove trailing [DP:AF] / [BF:RR] if it's there (allowing AF > 1 for Strelka bug)
+        $sampleID =~ s/\[\d+:\d+\.\d\d?\]$//;
         # sanity check
         (defined $sample2cohortR->{$sampleID}) ||
         die "E $0: sampleID $sampleID doesn't exist, sample was $sample\n";
@@ -812,32 +673,32 @@ sub processBatch {
 
       # hash to store col indices of Interactome fields
       # that match the current cohort
-      # key -> Col Index; Value = 1 
+      # key -> Col Index; Value = 1
       my %keepIntcoli;
 
       # hash to store col indices of Interactome fields
       # that DO NOT match the current cohort
-      # key -> Col Index; Value = 1 
+      # key -> Col Index; Value = 1
       my %skipIntcoli;
 
       foreach my $Intcohort (keys %cohortInteractome) {
-        # If the key (cohort) in the hash matches the 
-        # current cohort, then grab the Interactome 
+        # If the key (cohort) in the hash matches the
+        # current cohort, then grab the Interactome
         # col indices for the current cohort
         if ($Intcohort eq $cohort) {
           foreach my $cohortcoli(@{$cohortInteractome{$cohort}}) {
             $keepIntcoli{$cohortcoli} = 1;
           }
-        }  
+        }
         else {
-          # Storing the Interactome col indices of cohorts 
+          # Storing the Interactome col indices of cohorts
           # that do not  match the current cohort
           foreach my $unwantedcoli(@{$cohortInteractome{$Intcohort}}){
             $skipIntcoli{$unwantedcoli} = 1;
           }
         }
       }
-	  
+
       # skip if no HV or HET sample (possibly with other known causal variant)
       # in this cohort
       ($cohort2SLcounts[$cohorti]->[0] > 0) || ($cohort2SLcounts[$cohorti]->[1] > 0) ||
@@ -866,12 +727,12 @@ sub processBatch {
         # Print Interactome fields for the current cohort
         elsif (exists $keepIntcoli{$i}) {
           $toPrint .= "\t$fields[$i]";
-          }
-
-        elsif (exists $skipIntcoli{$i}) {
-          #NOOP => skip Interactome fields that do match current cohort
         }
 
+        elsif (exists $skipIntcoli{$i}) {
+          #NOOP => skip Interactome fields that do not match current cohort
+        }
+        
         elsif ($i == $genoColsR->{"HV"}) {
           # HV -> print all 8 sampleLists followed by OTHERGENO column
           $toPrint .= "\t".join("\t",@{$cohort2sampleLists[$cohorti]});
