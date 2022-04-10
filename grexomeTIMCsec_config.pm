@@ -37,8 +37,8 @@ sub refGenome {
     # return the first file that exists, so this works on
     # both luxor and fauve
     foreach my $genome ("/home/nthierry/HumanGenome/hs38DH.fa",
-			"/data/HumanGenome/hs38DH.fa") {
-	(-f $genome) && return($genome);
+    "/data/HumanGenome/hs38DH.fa") {
+        (-f $genome) && return($genome);
     }
     # if we get here no file was found...
     die "E: no refGenome found, you need to edit *config.pm";
@@ -57,15 +57,15 @@ sub vepCacheFile {
     # you'll need to customize the array of possible values for $cachedir,
     # we use the first dir that exists (works on luxor and fauve)
     foreach my $cachedir ("/home/waglem/") {
-	if (-d $cachedir) {
-	    # the name of the file itself, can probably stay as-is
-	    my $cacheFile = "VEP_cache";
-	    $cacheFile = "$cachedir/$cacheFile";
-	    # if it exists it must be writable
-	    (! -e $cacheFile) || (-w $cacheFile) ||
-		die "E: vepCacheFile $cacheFile exists but you can't write to it, fix the permissions or use another cachedir";
-	    return($cacheFile);
-	}
+        if (-d $cachedir) {
+            # the name of the file itself, can probably stay as-is
+            my $cacheFile = "VEP_cache";
+            $cacheFile = "$cachedir/$cacheFile";
+            # if it exists it must be writable
+            (! -e $cacheFile) || (-w $cacheFile) ||
+                die "E: vepCacheFile $cacheFile exists but you can't write to it, fix the permissions or use another cachedir";
+            return($cacheFile);
+        }
     }
     # no dir was found
     die "E: no vepCachePath found, you need to edit *config.pm";
@@ -76,7 +76,7 @@ sub vepCacheFile {
 sub vepPluginDataPath {
     # return first existing subdir
     foreach my $dir ("/data/nthierry/", "/data/") {
-	(-d $dir) && return($dir);
+        (-d $dir) && return($dir);
     }
     # no dir found
     die "E: no vepPluginDataPath found, you need to edit *config.pm";
@@ -89,11 +89,11 @@ sub vepPluginDataPath {
 # directory is stored in the same directory
 # (You can change the path as per your needs)
 sub UniProtFile {
-  (@_ == 1) || die "E: UniProtFile needs one arg";
-  my ($secPath) = @_;
-  my $UniProt = "$secPath/UniProt_Interactome_Data/uniprot_main.tsv";
-  (-f $UniProt) && return($UniProt);
-  die "E: no UniProt File found!";
+    (@_ == 1) || die "E: UniProtFile needs one arg";
+    my ($secPath) = @_;
+    my $UniProt = "$secPath/UniProt_Interactome_Data/uniprot_main.tsv";
+    (-f $UniProt) && return($UniProt);
+    die "E: no UniProt File found!";
 }
 
 # Return the name (with path) of Interactome file
@@ -103,20 +103,20 @@ sub UniProtFile {
 # directory is stored in the same directory
 # (You can change the path as per your needs)
 sub InteractomeFile {
-  (@_ == 1) || die "E: InteractomeFile needs one arg";
-  my ($secPath) = @_;
-  my $Interactome = "$secPath/UniProt_Interactome_Data/Interactome_human.tsv";
-  (-f $Interactome) && return($Interactome);
-  die "E: no Interactome File found!";
+    (@_ == 1) || die "E: InteractomeFile needs one arg";
+    my ($secPath) = @_;
+    my $Interactome = "$secPath/UniProt_Interactome_Data/Interactome_human.tsv";
+    (-f $Interactome) && return($Interactome);
+    die "E: no Interactome File found!";
 }
 
 # Return the name (with path) of Canonical Transcripts file
 # that will be used by 5.2_addInteractome.py
 # (You can change the path as per your needs)
 sub canonicalFile {
-  my $canonical = "/home/nthierry/Software/Grexome-TIMC/grexome-TIMC-Secondary/Transcripts_Data/canonicalTranscripts_220221.tsv.gz";
-  (-f $canonical) && return($canonical);
-  die "E: no Canonical Transcripts File found!";
+    my $canonical = "/home/nthierry/Software/Grexome-TIMC/grexome-TIMC-Secondary/Transcripts_Data/canonicalTranscripts_220221.tsv.gz";
+    (-f $canonical) && return($canonical);
+    die "E: no Canonical Transcripts File found!";
 }
 
 # Return a tmp dir with fast RW access, ideally a ramdisk, otherwise
@@ -142,10 +142,10 @@ sub coveragePath {
     # specify $covDir="" to disable this feature
     my $covDir = "/data/nthierry/PierreRay/CoverageResults/Coverage_Rolling/";
     if (($covDir eq "") || (-d $covDir)) {
-	return($covDir);
+        return($covDir);
     }
     else {
-	die "E: covDir was provided but doesn't exist, you need to edit *config.pm";
+        die "E: covDir was provided but doesn't exist, you need to edit *config.pm";
     }
 }
 
@@ -181,9 +181,9 @@ sub gtexFavoriteTissues {
 # value==pathology (must match the pathologyID column of the pathologies metadata xlsx).
 sub subCohorts {
     my %subCohorts = ("/home/nthierry/VariantCalling/GrexomeFauve/Grexome_Metadata/4-SubCohorts/subCohort_FV.txt" => "NOA",
-		      "/home/nthierry/VariantCalling/GrexomeFauve/Grexome_Metadata/4-SubCohorts/subCohort_London.txt" => "NOA",
-		      "/home/nthierry/VariantCalling/GrexomeFauve/Grexome_Metadata/4-SubCohorts/subCohort_AzooZouari.txt" => "NOA");
-    return(\%subCohorts);
+                      "/home/nthierry/VariantCalling/GrexomeFauve/Grexome_Metadata/4-SubCohorts/subCohort_London.txt" => "NOA",
+                      "/home/nthierry/VariantCalling/GrexomeFauve/Grexome_Metadata/4-SubCohorts/subCohort_AzooZouari.txt" => "NOA");
+    return;
 }
 
 

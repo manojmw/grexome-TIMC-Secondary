@@ -112,16 +112,16 @@ Arguments [defaults] (all can be abbreviated to shortest unambiguous prefixes):
 --help : print this USAGE";
 
 GetOptions ("samples=s" => \$samples,
-	    "pathologies=s" => \$pathologies,
-	    "candidateGenes=s" => \$candidateGenes,
-	    "infile=s" => \$inFile,
-	    "cnvs=s" => \$cnvs,
-	    "outdir=s" => \$outDir,
-	    "config=s" => \$config,
-	    "canonical" => \$canon,
- 	    "debug" => \$debug,
- 	    "debugVep" => \$debugVep,
-	    "help" => \$help)
+            "pathologies=s" => \$pathologies,
+            "candidateGenes=s" => \$candidateGenes,
+            "infile=s" => \$inFile,
+            "cnvs=s" => \$cnvs,
+            "outdir=s" => \$outDir,
+            "config=s" => \$config,
+            "canonical" => \$canon,
+            "debug" => \$debug,
+            "debugVep" => \$debugVep,
+            "help" => \$help)
     or die("E $0: Error in command line arguments\n$USAGE\n");
 
 # make sure required options were provided and sanity check them
@@ -162,7 +162,7 @@ $samples = "$outDir/".basename($samples);
 if ($pathologies) {
     (-f $pathologies) || die "E $0: the supplied pathologies file doesn't exist\n";
     copy($pathologies, $outDir) ||
-	die "E $0: cannot copy pathologies metadata to outDir: $!\n";
+	    die "E $0: cannot copy pathologies metadata to outDir: $!\n";
     $pathologies = "$outDir/".basename($pathologies);
 }
 # For 5.2_Interactome.py we will provide a space-seprated
@@ -445,7 +445,7 @@ else {
 # APPENDVC: append $caller (if it was auto-detected) to all final filenames
 if ($caller) {
     open (FILES, "find $outDir/ -name \'*csv\' |") ||
-	die "E $0: step10-appendVC cannot find final csv files with find\n";
+	    die "E $0: step10-appendVC cannot find final csv files with find\n";
     while (my $f = <FILES>) {
 	chomp($f);
 	my $new = $f;
@@ -462,13 +462,13 @@ if ($caller) {
 
 # REMOVEEMPTY: remove files with no data lines (eg if infile concerned only some samples)
 open (FILES, "find $outDir/ -name \'*csv\' |") ||
-    die "E $0: step10-removeEmpty cannot find final csv files with find\n";
+        die "E $0: step10-removeEmpty cannot find final csv files with find\n";
 while (my $f = <FILES>) {
     chomp($f);
     my $wc = `cat $f | wc -l`;
     # there's always 1 header line
     ($wc > 1) || unlink($f) ||
-	die "E $0: step10-removeEmpty cannot unlink $f: $!\n";
+	    die "E $0: step10-removeEmpty cannot unlink $f: $!\n";
 }
 close(FILES);
 

@@ -97,9 +97,9 @@ Arguments [defaults] (all can be abbreviated to shortest unambiguous prefixes):
 --help : print this USAGE";
 
 GetOptions ("indir=s" => \$inDir,
-	    "outdir=s" => \$outDir,
-	    "pathologies=s" => \$pathologies,
-	    "help" => \$help)
+	    	"outdir=s" => \$outDir,
+	    	"pathologies=s" => \$pathologies,
+	    	"help" => \$help)
     or die("E $0: Error in command line arguments\n$USAGE\n");
 
 # make sure required options were provided and sanity check them
@@ -142,7 +142,7 @@ foreach my $i (0..$#keptColumns) {
 my %keptColsSpecific;
 foreach my $col (@keptColumnsSpecific) {
     ($keptCols{$col}) || 
-	die "E $0: column $col is in keptColsSpecific but not in keptColumns, add it there\n";
+		die "E $0: column $col is in keptColsSpecific but not in keptColumns, add it there\n";
     $keptColsSpecific{$col} = $keptCols{$col};
     delete($keptCols{$col});
 }
@@ -205,7 +205,7 @@ while (my $inFile = readdir(INDIR)) {
     warn "I $now: $0 - starting on $cohort\n";
 
     open(INFILE, "$inDir/$inFile") ||
-	die "E $0: cannot open infile $inDir/$inFile\n";
+		die "E $0: cannot open infile $inDir/$inFile\n";
 
     ###################################
     # header line
@@ -285,7 +285,7 @@ while (my $inFile = readdir(INDIR)) {
     }
     # sanity check
     (($hvCol >= 0) && ($hvColOC >= 0) && ($hetCol >= 0) && ($hetColOC >= 0)) || 
-	die "E $0: couldn't find one of HV/HET/OCHV/OCHET for $cohort\n";
+		die "E $0: couldn't find one of HV/HET/OCHV/OCHET for $cohort\n";
 
     # add filter params at the end and store
     $cohort2header{$cohort} = "$newHeaders\t$headers[$#headers]";
@@ -476,7 +476,7 @@ my %outFHs;
 foreach my $cohort (sort keys(%cohort2header)) {
     my $outFile = "$cohort.Transcripts.csv" ;
     open(my $fh, "> $outDir/$outFile") ||
-	die "E $0: cannot open outfile $outDir/$outFile: $!\n";
+		die "E $0: cannot open outfile $outDir/$outFile: $!\n";
     $outFHs{$cohort} = $fh;
     print $fh $cohort2header{$cohort}."\n";
 }
