@@ -24,7 +24,7 @@ our @ISA = ('Exporter');
 # therefore we should never "use grexomeTIMCsec_config" but instead
 # provide the customized *config.pm as an argument, see --config in
 # grexome-TIMC-secondary.pl for an example.
-our @EXPORT_OK = qw(refGenome vepCacheFile vepPluginDataPath UniProtFile InteractomeFile canonicalFile fastTmpPath
+our @EXPORT_OK = qw(refGenome vepCacheFile vepPluginDataPath InteractomeFile canonicalFile fastTmpPath
                     coveragePath gtexDatafile gtexFavoriteTissues subCohorts);
 
 
@@ -80,20 +80,6 @@ sub vepPluginDataPath {
     }
     # no dir found
     die "E: no vepPluginDataPath found, you need to edit *config.pm";
-}
-
-# Return the name (with path) of UniProt Primary Accession file
-# that will be used by 5.2_addInteractome.py
-# This sub takes as arg the path to the grexome-TIMC-secondary codebase,
-# assuming that the output of all scripts run in UniProt_Interactome_Data
-# directory is stored in the same directory
-# (You can change the path as per your needs)
-sub UniProtFile {
-    (@_ == 1) || die "E: UniProtFile needs one arg";
-    my ($secPath) = @_;
-    my $UniProt = "$secPath/UniProt_Interactome_Data/uniprot_main.tsv";
-    (-f $UniProt) && return($UniProt);
-    die "E: no UniProt File found!";
 }
 
 # Return the name (with path) of Interactome file

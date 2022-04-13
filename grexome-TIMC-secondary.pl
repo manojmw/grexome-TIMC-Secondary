@@ -144,7 +144,7 @@ if ($cnvs) {
 ($config =~ m~/~) || ($config = "./$config");
 (-f $config) ||  die "E $0: the supplied config.pm doesn't exist: $config\n";
 require($config);
-grexomeTIMCsec_config->import(qw(refGenome vepCacheFile vepPluginDataPath UniProtFile InteractomeFile canonicalFile fastTmpPath),
+grexomeTIMCsec_config->import(qw(refGenome vepCacheFile vepPluginDataPath InteractomeFile canonicalFile fastTmpPath),
 			      qw(coveragePath gtexDatafile gtexFavoriteTissues subCohorts));
 
 ($outDir) || die "E $0: you must provide an outDir\n";
@@ -305,7 +305,7 @@ if ($debug) {
 }
 
 # step 5.2
-$com .= " | python3 $RealBin/5.2_addInteractome.py --inSampleFile $samples --inPrimAC ".&UniProtFile($RealBin)." --inCandidateFile $candidateGenes_Int --inCanonicalFile ".&canonicalFile()." --inInteractome ".&InteractomeFile($RealBin)." ";
+$com .= " | python3 $RealBin/5.2_addInteractome.py --inSampleFile $samples --inCandidateFile $candidateGenes_Int --inCanonicalFile ".&canonicalFile()." --inInteractome ".&InteractomeFile($RealBin)." ";
 if ($debug) {
     $com .= "2> $outDir/step5.2.err > $outDir/step5.2.out";
     system($com) && die "E $0: debug mode on, step5.2 failed: $?";
