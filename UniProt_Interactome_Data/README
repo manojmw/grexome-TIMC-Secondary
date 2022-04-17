@@ -9,15 +9,8 @@
 1] Grab the latest UniProt data with:
   % wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
 
-2] Parse UniProt data to produce output files with:
-  % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py --outPrimAC uniprot_main.tsv --outSecAC uniprot_secondary.tsv --outGeneID geneID.tsv
-
-  # Description of arguments:
-    --outPrimaryAC:   A tab-seperated UniProt Primary Accession Output File name containing UniProt Primary Accession, Taxonomy Identifier, ENST(s) & ENSG(s)
-
-    --outSecondaryAC: A tab-seperated UniProt Secondary Accession Output File name containing UniProt Secondary Accession & Corresponding UniProt Primary Accession
-
-    --outGeneID:      A tab-seperated GeneID Output File name (.tsv) containing GeneID & Corresponding UniProt Primary Accession
+2] Parse UniProt data to produce output file with:
+  % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py > Uniprot_output.tsv
 
 
 ###########################################################
@@ -33,9 +26,6 @@
       % unzip BIOGRID-ORGANISM-LATEST.mitab
 
     - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt for human data)
-    
-    - Optional: To simplify the above processs and to avoid creating multiple files, you can simply do:
-      % unzip -p BIOGRID-ORGANISM-LATEST.mitab.zip BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt > BIOGRID-ORGANISM-Homo_sapiens.mitab.txt
 
 
     # Get the latest IntAct data with:
@@ -48,34 +38,30 @@
 
 
 2.1] Parse BioGRID data with:
-    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Biogrid.tsv
+    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt --inUniProt Uniprot_output.tsv > Exp_Biogrid.tsv
 
 2.2] Then, parse Intact data with:
-    % python3 Interaction_parser.py --inInteraction intact.txt --inPrimAC uniprot_main.tsv --inSecAC uniprot_secondary.tsv --inGeneID geneID.tsv > Exp_Intact.tsv
+    % python3 Interaction_parser.py --inInteraction intact.txt --inUniProt Uniprot_output.tsv > Exp_Intact.tsv
 
     # Description of arguments:
 
       --inInteraction: Protein-protein Interaction Input File name (miTAB 2.5 or 2.7)
 
-      --inPrimAC:      Uniprot Primary Accession Input File produced by Uniprot_parser.py
-
-      --inSecAC:       Uniprot Secondary Accession Input File produced by Uniprot_parser.py
-
-      --inGeneID:      GeneID Input File name produced by Uniprot_parser.py
+      --inUniProt    : Output produced by Uniprot_parser.py
 
 
 ###########################################################
 
 # Build High-Quality Human Interactome with:
-  % python3 Build_Interactome.py --inExpFile Exp_Biogrid.tsv Exp_Intact.tsv --inPrimAC uniprot_main.tsv --inCanonicalFile canonicalTranscripts_*.tsv.gz > Interactome_human.tsv
+  % python3 Build_Interactome.py --inExpFile Exp_Biogrid.tsv Exp_Intact.tsv --inUniProt Uniprot_output.tsv --inCanonicalFile canonicalTranscripts_*.tsv.gz > Interactome_human.tsv
 
     # Description of arguments:
 
-      --inExpFile:        PPI Experiments Output File(s) produced by Interaction_parser.py
+      --inExpFile      :  PPI Experiments Output File(s) produced by Interaction_parser.py
 
-      --inPrimAC:         Uniprot Primary Accession Input File produced by Uniprot_parser.py
-
-      --inCanonicalFile:  Canonical Transcripts Input File name
+      --inUniProt      :  Output produced by Uniprot_parser.py
+ 
+      --inCanonicalFile:  Canonical Transcripts Input File name (.gz or non .gz)
 
     # High-Quality Interactome Criteria:
 
@@ -85,9 +71,9 @@
       2] Filtering Interactions based on Interaction Type:
         - We keep only direct interaction (MI:0407) & physical association (MI:0915)
 
-      3] We try to eliminate most of the SPOKE EXPANSION DATA, and consider only TRUE BINARY INTERACTIONS
+      3] We try to eliminate most of the EXPANSION DATA, and keep only TRUE BINARY INTERACTIONS
 
-      4] Each Interaction has ≥ 2 experiments, of which at least one of them should be proved by any BINARY METHOD
+      4] Each Interaction has ≥ 1 experiment, of which one should be proven by any BINARY METHOD
 
 
 ###########################################################
