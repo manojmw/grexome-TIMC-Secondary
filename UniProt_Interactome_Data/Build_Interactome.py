@@ -273,6 +273,7 @@ def Uniprot_ENSG(inUniProt, ENSG_Gene_dict):
 # Output consists of 2 columns:
 # - ENSG of Protein A
 # - ENSG of Protein B
+# - Edge Weight = 1
 def Interactome_Uniprot2ENSG(args):
 
     # Calling the functions
@@ -283,7 +284,7 @@ def Interactome_Uniprot2ENSG(args):
     for data in Uniprot_Interactome_list:
 
         if data[0] in Uniprot_ENSG_dict.keys() and data[1] in Uniprot_ENSG_dict.keys():
-            ENSG_Interactome_out = (Uniprot_ENSG_dict.get(data[0]), Uniprot_ENSG_dict.get(data[1]))
+            ENSG_Interactome_out = (Uniprot_ENSG_dict.get(data[0]), Uniprot_ENSG_dict.get(data[1]), str(1))
             print('\t'.join(ENSG_Interactome_out))
 
     logging.info("ALL DONE, completed successfully!")
@@ -304,6 +305,7 @@ Program: Parses the output file(s) produced by the interaction_parser.py to prod
 The output (High-quality Human Interactome) consists of five columns in .tsv format:
   -> ENSG of Protein A
   -> ENSG of Protein B
+  -> Edge Weight = 1
 --------------------------------------------------------------------------------------------------
 
 Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
