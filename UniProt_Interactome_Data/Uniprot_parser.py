@@ -31,6 +31,10 @@ def uniprot_parser(UniProtinFile):
 
     UniProtinFile = sys.stdin
 
+    # Header line
+    UniProt_header = ['Primary_AC', 'TaxID', 'ENSTs', 'ENSGs', 'Secondary_ACs', 'GeneIDs', 'GeneNames']
+    print('\t'.join(UniProt_header))
+
     # Initializing variables/accumulators
     ACs = ''
     TaxID = 0
