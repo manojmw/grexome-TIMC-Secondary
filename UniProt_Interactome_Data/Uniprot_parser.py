@@ -209,14 +209,17 @@ def uniprot_parser(UniProtinFile):
         # '//' means End of the record
         # we Process the retreived data
         elif (line == '//'):
-            # ignore entry if bad species; TaxID Human = 9606, TaxID Mouse = 10090
-            if ((TaxID == '9606') or (TaxID == '10090')):
+            # TaxID Human = 9606
+            # ignore entry if bad species; 
+            if (TaxID == '9606'):
                 try:
                     ACs_split = ACs.split('; ')
                     primary_AC = ACs_split[0] # Grab only the first AC
-                    secondary_ACs = ACs_split[1:] # Grab the remaining ACs
+                    secondary_AC_list = ACs_split[1:] # Grab the remaining ACs
+                    # storing secondary_ACs as a single comma-seperated string
+                    secondary_ACs = ','.join(secondary_AC_list) 
                 except:
-                    logging.error("Failed to store Ensembl Identifiers for the protein: \t", ACs)
+                    logging.error("Failed to store store UniProt Accession IDs for the protein: \t", ACs)
                     sys.exit()
                 try:
                     # storing Gene names as a single comma-seperated string
@@ -283,9 +286,6 @@ Output File 3 (--outGeneID):      A tab-seperated file (.tsv) with two columns
 Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     """,
     formatter_class = argparse.RawDescriptionHelpFormatter)
-
-    required = file_parser.add_argument_group('Required arguments')
-    optional = file_parser.add_argument_group('Optional arguments')
 
     file_parser.set_defaults(func=uniprot_parser)
     args = file_parser.parse_args()
