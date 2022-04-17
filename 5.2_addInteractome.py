@@ -710,7 +710,9 @@ def addInteractome(args):
     # - patho-INTERACTORS_COUNT
     # - patho-INTERACTORS
     # - patho-INTERACTORS_PVALUE
-    Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE'] for patho in pathologies_list]
+    # - patho-ENRICHED_CLUSTER
+    # - patho-ENRICHED_CLUSTER_PVALUE
+    Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE', patho+'-ENRICHED_CLUSTER', patho+'-ENRICHED_CLUSTER_PVALUE'] for patho in pathologies_list]
 
     # Initializing a list to store all
     # all the elements of a sublist in a
@@ -746,12 +748,14 @@ def addInteractome(args):
             print('\t'.join(str(data) for data in line_fields))
         else:
             # If the gene is not present in addGTEX_output, then we assign the same
-            # value as when no known interactors were found for a given gene
+            # value as when no known interactors/no clustering data were found for a given gene
             # i.e 
             # INTERACTORS_COUNT = 0
             # INTERACTORS = ''
             # INTERACTORS_PVALUE = 1
-            line_fields[Symbol_index+1:Symbol_index+1] = [0,'',1] * len(pathologies_list)
+            # ENRICHED_CLUSTER = ''
+            # ENRICHED_CLUSTER_PVALUE = 1
+            line_fields[Symbol_index+1:Symbol_index+1] = [0,'',1,'',1] * len(pathologies_list)
             print('\t'.join(str(data) for data in line_fields))  
 
     # Closing the file
