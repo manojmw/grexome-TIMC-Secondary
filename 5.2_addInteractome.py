@@ -8,6 +8,7 @@ import openpyxl as xl
 import scipy.stats as stats
 import gzip
 import logging
+import re
 
 ###########################################################
 
@@ -379,12 +380,155 @@ def Uniprot_ENSG(inUniProt, ENSG_Gene_dict):
 
 ###########################################################
 
-# Parses the dictionaries & list returned
-# by the function: Interacting_Proteins
+# Cluster output file produced by clustering methods, 
+# processed by appropriate ProcessClusterFile_*.py script
+#
+# Returns a dictionary:
+# Key: clusterID as in the inFile
+# Value: Dictionary containing 2 types of key/value pair:
+# -> First type of key/value pair:
+#   - Key: ENSG of the node;  Value: 1
+# -> Second type of key/value pair:
+#   - Key: Pathology name;  P-value for the given cluster
+def Build_ClusterDict(inClusterFile, CandidateGene_dict, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs):
+
+    # Dictionary to store Clustering data 
+    # and pathology-specific P-values
+    IntCluster_dict = {}
+
+    # Execute only if Cluster file is provided
+    if Cluster_File:
+
+        Cluster_File = open(inClusterFile)
+
+        # Compiling regular expressions
+
+        # Matching Cluster ID
+        re_cluster = re.compile('(^ClusterID.\d+)\|\|$')
+
+        # Matching ENSG of nodes
+        re_node = re.compile('^(ENSG\d+)$')
+
+        # Intializing variable to store
+        # clusterIDS and nodes
+        Clust_ID = ''
+        ENSG_nodes = []
+
+        # List for counting total candidate genes in the cluster
+        # associated with each pathology
+        clusterCandidateCount = [0] * len(pathologies_list)
+
+        # skip header
+        Cluster_File.readline()
+
+        # Data lines 
+        for line in Cluster_File:
+
+            line = line.rstrip("\r\n")
+
+            # Get the cluster ID
+            if (re_cluster.match(line)):
+                Clust_ID = re_cluster.match(line).group(1)
+            # Get the ENSG of the nodes in the current cluster
+            elif (re_node.match(line)):
+                ENSG = re_node.match(line).group(1)
+                if not ENSG in ENSG_nodes:
+                    ENSG_nodes.append(ENSG)
+            
+            # End of the cluster is indicated by an empty line
+            # If we reach here, process data for the current cluster
+            elif (line == ''):
+                # If the size of the cluster is < 2
+                # Then, do not store data for this cluster
+                # Empty the accumulators and move on to next cluster
+                if len(ENSG_nodes) < 2:
+                    # Reset the accumulators and move on to the next cluster
+                    Clust_ID = ''
+                    ENSG_nodes = []
+                    clusterCandidateCount = [0] * len(pathologies_list)
+                    continue
+                
+                # If the size of the cluster is >= 2
+                else:
+                    # Storing ClusterID as the Key IntCluster_dict
+                    # Value is a dictionary containing 2 types of Key/value pair:
+                    # -> First type of key/value pair:
+                    #   - Key: ENSG of the node;  Value: 1
+                    # -> Second type of key/value pair:
+                    #   - Key: Pathology name;  P-value for the given cluster
+                
+                    IntCluster_dict[Clust_ID] = {}
+
+                    # Storing the ENSG of each node as a key in IntCluster_dict[Clust_ID]
+                    # Value = 1
+                    for ENSG_node in ENSG_nodes:
+                        if not ENSG_node in IntCluster_dict[Clust_ID]:
+                            IntCluster_dict[Clust_ID][ENSG_node] = 1 
+
+                    # For the current cluster, checking how many
+                    # genes are known candidate genes and storing
+                    # the count in clusterCandidateCount
+                    for ENSG in IntCluster_dict[Clust_ID]:
+                        if ENSG in CandidateGene_dict:
+                            for patho in CandidateGene_dict[ENSG]:
+                                for i in range(len(pathologies_list)):        
+                                    if patho == pathologies_list[i]:
+                                        clusterCandidateCount[i] += 1
+
+                    # Applying Fisher's exact test and computing P-values
+                    for i in range(len(clusterCandidateCount)):
+
+                        # In the current cluster, if no gene is 
+                        # a known candidate gene for the current pathology
+                        # then there is no point in computing P-Values for this pathology
+                        # So, we assign P-value = 1
+                        if clusterCandidateCount[i] == 0:
+                            cluster_p_value = 1
+
+                        # If in the current cluster, gene(s) is a Known candidate
+                        # gene(s) for the current Pathology, then we compute the P-value for 
+                        # this pathology
+                        else:
+                            # Applying Fisher's exact test to calculate p-values
+                            ComputePvalue_cluster = [[clusterCandidateCount[i], len(ENSG_nodes)],[pathology_CandidateCount[i], Count_UniqueENSGs]]
+                            (odds_ratio, cluster_p_value) = stats.fisher_exact(ComputePvalue_cluster)
+
+                        # Storing Pathology name as the key in IntCluster_dict[Clust_ID]
+                        # Value: P-value
+                        IntCluster_dict[Clust_ID][pathologies_list[i]] = cluster_p_value
+
+                    # Reset the accumulators and move on to the next cluster
+                    Clust_ID = ''
+                    ENSG_nodes = []
+                    clusterCandidateCount = [0] * len(pathologies_list)
+                    continue
+
+        Cluster_File.close()
+
+    return IntCluster_dict
+
+###########################################################
+
+# Parses: 
+# - ProtA_dict, ProtB_dict, All_Interactors_list returned
+#   by the function: Interacting_Proteins
+# - CandidateGene_dict returned by the function: 
+#   CandidateGeneParser
+# - pathologies_list returned by the function:
+#   getPathologies
+# - pathology_CandidateCount returned by the function: 
+#   CountCandidateGenes
+# - ENSG_Gene_dict returned by the function:  
+#   ENSG_Gene
+# - Count_UniqueENSGs returned by the function: 
+#   Uniprot_ENSG
+# - IntCluster_dict returned by the function: 
+#   Build_ClusterDict
 #
 # Checks the number of interactors for each gene
-# Checks the number of known interactors using the 
-# candidateGene_out_list returned by the function: CandidateGene2ENSG
+# Checks the number of known interactors and
+# computes P-values
+# Further adds the Interactome Clustering data
 #
 # Returns a Dictionary
 # Key -> Gene name; 
@@ -393,7 +537,9 @@ def Uniprot_ENSG(inUniProt, ENSG_Gene_dict):
 # - Known Interactors count
 # - list of Known Interactors
 # - P-value
-def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs):
+# - Whether the given gene is present in enriched cluster
+# - P-value for the cluster
+def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs, IntCluster_dict):
 
     # Dictionary to store Gene and
     # Interactome data associated with each pathology
@@ -469,6 +615,30 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
             else:
                 Output_eachPatho = [len(Known_Interactors), '', p_value]
 
+             # Adding Interactome clustering data
+            for cluster in IntCluster_dict:
+                # Checking if the current gene is present in any cluster
+                if All_Interactors_list[ENSG_index] in IntCluster_dict[cluster]:
+                    #  If the gene is present in the cluster, get the P-value
+                    #  for this cluster
+                    clusterPatho_Pvalue = IntCluster_dict[cluster].get(pathologies_list[i])
+                    # If P-value is not equal to 1 means, the cluster is enriched
+                    # for the current pathology
+                    # So we say this gene is PRESENT in the enriched cluster
+                    # and add the P-value associated with this cluster
+                    if clusterPatho_Pvalue != 1:
+                        Output_eachPatho.append('PRESENT')
+                        Output_eachPatho.append(IntCluster_dict[cluster][pathologies_list[i]])
+                        break
+                # If the gene is not present in any cluster
+                # This can happen as we eliminate clusters with size < 2
+                # So we append an empty string and assign P-value as 1
+                # Similar to the gene that is not present in an enriched cluster
+                else:
+                    Output_eachPatho.append('')
+                    Output_eachPatho.append(1)
+                    break
+
             for data in Output_eachPatho:
                 Gene_AllPatho.append(data)
 
@@ -488,7 +658,7 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
 # Reads on STDIN a TSV file as produced by 5.1_addGTEX.pl
 #
 # Print to stdout a TSV file with added columns holding
-# Interactome data (non-clustering approach)
+# Interactome data 
 #
 # New columns containing Interactome data are added
 # immediately after the 'SYMBOL' column
@@ -502,7 +672,8 @@ def addInteractome(args):
     pathology_CandidateCount = CountCandidateGenes(CandidateGene_dict, pathologies_list)
     (ProtA_dict, ProtB_dict, All_Interactors_list) = Interacting_Proteins(args.inInteractome)
     Count_UniqueENSGs = Uniprot_ENSG(args.inUniProt, ENSG_Gene_dict)
-    Gene_IntAllpatho = Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs)
+    IntCluster_dict = Build_ClusterDict(args.inClusterFile, CandidateGene_dict, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs)
+    Gene_IntAllpatho = Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs, IntCluster_dict)
 
     # Take STDIN file as produced by 5.1_addGTEX.pl
     addGTEX_output = sys.stdin
@@ -597,7 +768,7 @@ def main():
     file_parser = argparse.ArgumentParser(description =
     """
 
-Parse on STDIN a TSV file as produced by 5.1_addGTEX.pl. Also parses the files provided to the arguments. Print to STDOUT a TSV file (similar to the one produced by 5.1_addGTEX.pl) with additional columns holding Interactome data (non-clustering approach)
+Parse on STDIN a TSV file as produced by 5.1_addGTEX.pl. Also parses the files provided to the arguments. Print to STDOUT a TSV file (similar to the one produced by 5.1_addGTEX.pl) with additional columns holding Interactome data
 
 Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     """,
@@ -611,6 +782,7 @@ Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     required.add_argument('--inCandidateFile', metavar = "Input File", dest = "inCandidateFile", nargs = '*', help = 'Candidate Genes Input File name(.xlsx)')
     required.add_argument('--inCanonicalFile', metavar = "Input File", dest = "inCanonicalFile", help = 'Canonical Transcripts file (.gz or non .gz)')
     required.add_argument('--inInteractome', metavar = "Input File", dest = "inInteractome", help = 'Input File Name (High-quality Human Interactome(.tsv) produced by Build_Interactome.py)')
+    required.add_argument('--inClusterFile', metavar = "Input File", dest = "inClusterFile", help = 'Cluster output file produced by clustering methods, processed by appropriate ProcessClusterFile_*.py script')
 
     args = file_parser.parse_args()
     addInteractome(args)
