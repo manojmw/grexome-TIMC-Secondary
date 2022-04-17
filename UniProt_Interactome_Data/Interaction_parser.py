@@ -43,8 +43,6 @@ def Build_UniProtDicts(inUniProt):
 
     Uniprot_File = open(inUniProt)
 
-    logging.info("Processing data from UniProt File: %s" % inUniProt)
-
     # Grabbing the header line
     Uniprot_header = Uniprot_File.readline()
 
