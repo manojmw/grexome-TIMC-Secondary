@@ -397,7 +397,7 @@ def Build_ClusterDict(inClusterFile, CandidateGene_dict, pathologies_list, patho
     IntCluster_dict = {}
 
     # Execute only if Cluster file is provided
-    if Cluster_File:
+    if inClusterFile:
 
         Cluster_File = open(inClusterFile)
 
