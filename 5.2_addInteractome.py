@@ -158,7 +158,7 @@ def CandidateGeneParser(inCandidateFile, ENSG_Gene_dict):
                 Gene_identifierF = Gene_identifier.split('_')
 
                 # Gene_identifierF[0] -> Gene name
-
+                # Get the ENSG for the candidate Gene
                 for ENSG in ENSG_Gene_dict.keys():
                     if Gene_identifierF[0] == ENSG_Gene_dict[ENSG]:
                         Gene = ENSG
@@ -183,7 +183,7 @@ def CandidateGeneParser(inCandidateFile, ENSG_Gene_dict):
 # Parses the dictionary {CandidateGene_dict}
 # returned by the function: CandidateGeneParser
 #
-# Returns a list containing all the pathologies/Phenotypes
+# Returns a list containing all the pathologies/cohorts
 def getPathologies(inSample):
 
     sampleFile = inSample
@@ -246,7 +246,7 @@ def CountCandidateGenes(CandidateGene_dict, pathologies_list):
 # First dictionary contains:
 # - key: Protein A; Value: List of interactors
 # Second dictionary contains:
-# key: Protein B; Value: List of interactors
+# - key: Protein B; Value: List of interactors
 # These dictionaries are later used to determine
 # the no. of interactors for a given protein/gene
 #
@@ -381,7 +381,7 @@ def Uniprot_ENSG(inUniProt, ENSG_Gene_dict):
 ###########################################################
 
 # Cluster output file produced by clustering methods, 
-# processed by appropriate ProcessClusterFile_*.py script
+# processed by ProcessClusterFile_*.py script (if required)
 #
 # Returns a dictionary:
 # Key: clusterID as in the inFile
@@ -654,6 +654,7 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
 # - Candidate Gene(s) file
 # - Sample metadata file
 # - Interactome file
+# - Cluster file
 #
 # Reads on STDIN a TSV file as produced by 5.1_addGTEX.pl
 #
