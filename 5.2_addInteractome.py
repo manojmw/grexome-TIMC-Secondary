@@ -625,19 +625,24 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
                     # If P-value is not equal to 1 means, the cluster is enriched
                     # for the current pathology
                     # So we say this gene is PRESENT in the enriched cluster
-                    # and add the P-value associated with this cluster
+                    # and add the P-value associated with this cluster for the current pathology
                     if clusterPatho_Pvalue != 1:
                         Output_eachPatho.append('PRESENT')
-                        Output_eachPatho.append(IntCluster_dict[cluster][pathologies_list[i]])
+                        Output_eachPatho.append(clusterPatho_Pvalue)
                         break
-                # If the gene is not present in any cluster
-                # This can happen as we eliminate clusters with size < 2
-                # So we append an empty string and assign P-value as 1
-                # Similar to the gene that is not present in an enriched cluster
-                else:
-                    Output_eachPatho.append('')
-                    Output_eachPatho.append(1)
-                    break
+
+            # If the gene is not present in any cluster
+            # This can happen as we eliminate clusters with size < 2
+            # So we append an empty string and assign P-value = 1
+            # similar to a gene that is present in a cluster but not 
+            # enriched for the current pathology
+            if len(Output_eachPatho) == 3:
+                Output_eachPatho.append('')
+                Output_eachPatho.append(1)
+            else: # len(Output_eachPatho) is 5
+                # The gene was present in one of the clusters that
+                # is enriched for the current pathology
+                pass
 
             for data in Output_eachPatho:
                 Gene_AllPatho.append(data)
