@@ -260,10 +260,13 @@ foreach my $geno ("HV","HET","OTHER","HR") {
     ($genoCols{$geno}) || die "E $0: cound not find $geno in headers\n";
 }
 
-# There are 3 Interactome headers for each patholgoy/cohort
+# There are 5 Interactome headers for each patholgoy/cohort
 # - COHORT-INTERACTORS_COUNT
 # - COHORT-INTERACTORS
 # - COHORT-INTERACTORS_PVALUE
+# - COHORT-ENRICHED_CLUSTER
+# - COHORT-ENRICHED_CLUSTER_PVALUE
+#
 # Initializng an hash to store cohort name
 # and thier corresponding column indices in infile
 # Key -> COHORT name; Value -> array reference of column indices
@@ -275,7 +278,7 @@ foreach my $i (0..$#headers) {
     # storing the Interactome col in array
     my @Interactomecoli;
     # Matching Interactome headers
-    if ($headers[$i] =~ /^\w+-INTERACTORS_COUNT$|^\w+-INTERACTORS$|^\w+-INTERACTORS_PVALUE$/) {
+    if ($headers[$i] =~ /^\w+-INTERACTORS_COUNT$|^\w+-INTERACTORS$|^\w+-INTERACTORS_PVALUE$|^\w+-ENRICHED_CLUSTER$|^\w+-ENRICHED_CLUSTER_PVALUE/) {
         # Getting the cohort name from the Interactome header
         # In each Interactome header, the cohort name
         # is separated by an '-', we split at the '-'
