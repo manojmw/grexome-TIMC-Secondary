@@ -438,7 +438,7 @@ def Build_ClusterDict(inClusterFile, CandidateGene_dict, pathologies_list, patho
             # End of the cluster is indicated by an empty line
             # If we reach here, process data for the current cluster
             elif (line == ''):
-                # If the size of the cluster is < 2
+                # If the size of the cluster is < 2 
                 # Then, do not store data for this cluster
                 # Empty the accumulators and move on to next cluster
                 if len(ENSG_nodes) < 2:
@@ -447,7 +447,10 @@ def Build_ClusterDict(inClusterFile, CandidateGene_dict, pathologies_list, patho
                     ENSG_nodes = []
                     clusterCandidateCount = [0] * len(pathologies_list)
                     continue
-                
+                elif len(ENSG_nodes) > 100:
+                    logging.error("The size of the cluster "+Clust_ID+" in greater than 100. Fix the cluster file" )
+                    sys.exit()
+                    
                 # If the size of the cluster is >= 2
                 else:
                     # Storing ClusterID as the Key IntCluster_dict
