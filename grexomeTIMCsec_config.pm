@@ -128,7 +128,7 @@ sub ClusterFile {
 # that will be used by 5.2_addInteractome.py
 # (You can change the path as per your needs)
 sub canonicalFile {
-    my $canonical = "/home/nthierry/Software/Grexome-TIMC/grexome-TIMC-Secondary/Transcripts_Data/canonicalTranscripts_220221.tsv.gz";
+    my $canonical = "/home/nthierry/Software/Grexome-TIMC/grexome-TIMC-Secondary/Transcripts_Data/canonicalTranscripts_220415.tsv.gz";
     (-f $canonical) && return($canonical);
     die "E: no Canonical Transcripts File found!";
 }
