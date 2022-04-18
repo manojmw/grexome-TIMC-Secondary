@@ -63,13 +63,13 @@ $0 = basename($0);
 ## hard-coded stuff that shouldn't change much
 
 # columns we want to keep, in this order:
-my @keptColumns = qw(SYMBOL KNOWN_CANDIDATE_GENE Feature CANONICAL BIOTYPE Gene RefSeq INTERACTORS_COUNT INTERACTORS INTERACTORS_PVALUE);
+my @keptColumns = qw(SYMBOL KNOWN_CANDIDATE_GENE Feature CANONICAL BIOTYPE Gene RefSeq INTERACTORS_COUNT INTERACTORS INTERACTORS_PVALUE ENRICHED_CLUSTER ENRICHED_CLUSTER_PVALUE);
 # in addition we insert the new COUNTSAMPLES* columns right after the last @keptColumns
 # and immediately followed by the HV_HIGH et al colums, and we then copy all 
 # the GTEX_* columns (in the same order as in infile)
 
 # among the @keptColumns some have cohort-specific data: list them
-my @keptColumnsSpecific = qw(KNOWN_CANDIDATE_GENE INTERACTORS_COUNT INTERACTORS INTERACTORS_PVALUE);
+my @keptColumnsSpecific = qw(KNOWN_CANDIDATE_GENE INTERACTORS_COUNT INTERACTORS INTERACTORS_PVALUE ENRICHED_CLUSTER ENRICHED_CLUSTER_PVALUE);
 
 
 # also for convenience: the types of samples to count
@@ -161,7 +161,7 @@ foreach my $col (@keptColumnsSpecific) {
 # %transcript2start: key==$transcript, value==arrayref holding the start-of-line 
 # common data for this transcript (one value per column), the cohort-specific
 # fields are left undefined (only KNOWN_CANDIDATE_GENE INTERACTORS_COUNT 
-# INTERACTORS INTERACTORS_PVALUE currently)
+# INTERACTORS INTERACTORS_PVALUE ENRICHED_CLUSTER ENRICHED_CLUSTER_PVALUE, currently)
 my %transcript2start;
 # %transcript2gtex: key==$transcript, value==GTEX data to print (starting with \t)
 my %transcript2gtex;
