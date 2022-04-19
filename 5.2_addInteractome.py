@@ -451,7 +451,7 @@ def Build_ClusterDict(inClusterFile, CandidateGene_dict, pathologies_list, patho
                     logging.error("The size of the cluster "+Clust_ID+" in greater than 100. Fix the cluster file" )
                     sys.exit()
                     
-                # If the size of the cluster is >= 2
+                # If the size of the cluster is >= 2 and <=100
                 else:
                     # Storing ClusterID as the Key IntCluster_dict
                     # Value is a dictionary containing 2 types of Key/value pair:
@@ -795,7 +795,7 @@ Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     required.add_argument('--inCandidateFile', metavar = "Input File", dest = "inCandidateFile", nargs = '*', help = 'Candidate Genes Input File name(.xlsx)')
     required.add_argument('--inCanonicalFile', metavar = "Input File", dest = "inCanonicalFile", help = 'Canonical Transcripts file (.gz or non .gz)')
     required.add_argument('--inInteractome', metavar = "Input File", dest = "inInteractome", help = 'Input File Name (High-quality Human Interactome(.tsv) produced by Build_Interactome.py)')
-    required.add_argument('--inClusterFile', metavar = "Input File", dest = "inClusterFile", help = 'Cluster output file produced by clustering methods, processed by appropriate ProcessClusterFile_*.py script')
+    required.add_argument('--inClusterFile', metavar = "Input File", dest = "inClusterFile", help = 'Cluster output file produced by clustering methods (If required, processed by appropriate ProcessClusterFile_*.py script')
 
     args = file_parser.parse_args()
     addInteractome(args)
