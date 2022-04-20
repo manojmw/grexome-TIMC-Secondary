@@ -374,7 +374,7 @@ def Uniprot_ENSG(inUniProt, ENSG_Gene_dict):
             if len(canonical_human_ENSGs) == 1:
                 Count_UniqueENSGs += 1
 
-    Uniprot_File.close()
+        Uniprot_File.close()
 
     return Count_UniqueENSGs
 
