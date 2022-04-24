@@ -265,6 +265,8 @@ foreach my $geno ("HV","HET","OTHER","HR") {
 # - COHORT-INTERACTORS
 # - COHORT-INTERACTORS_PVALUE
 # - COHORT-ENRICHED_CLUSTER
+# - COHORT-ENRICHED_CLUSTER_ID
+# - COHORT-ENRICHED_CLUSTER_SIZE
 # - COHORT-ENRICHED_CLUSTER_PVALUE
 #
 # Initializng an hash to store cohort name
@@ -278,7 +280,7 @@ foreach my $i (0..$#headers) {
     # storing the Interactome col in array
     my @Interactomecoli;
     # Matching Interactome headers
-    if ($headers[$i] =~ /^\w+-INTERACTORS_COUNT$|^\w+-INTERACTORS$|^\w+-INTERACTORS_PVALUE$|^\w+-ENRICHED_CLUSTER$|^\w+-ENRICHED_CLUSTER_PVALUE/) {
+    if ($headers[$i] =~ /^\w+-INTERACTORS_COUNT$|^\w+-INTERACTORS$|^\w+-INTERACTORS_PVALUE$|^\w+-ENRICHED_CLUSTER$|^\w+-ENRICHED_CLUSTER_ID$|^\w+-ENRICHED_CLUSTER_SIZE$|^\w+-ENRICHED_CLUSTER_PVALUE/) {
         # Getting the cohort name from the Interactome header
         # In each Interactome header, the cohort name
         # is separated by an '-', we split at the '-'
