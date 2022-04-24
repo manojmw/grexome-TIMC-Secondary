@@ -540,8 +540,10 @@ def Build_ClusterDict(inClusterFile, CandidateGene_dict, pathologies_list, patho
 # - Known Interactors count
 # - list of Known Interactors
 # - P-value
-# - Whether the given gene is present in enriched cluster
-# - P-value for the cluster
+# - If a gene is 'PRESENT' in an Enriched Cluster
+# - ClusterID (if enriched)
+# - Size of the Cluster 
+# - The Cluster associated P-value
 def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGene_dict, pathologies_list, pathology_CandidateCount, ENSG_Gene_dict, Count_UniqueENSGs, IntCluster_dict):
 
     # Dictionary to store Gene and
@@ -561,6 +563,10 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
         # - Known Interactors count
         # - list of Known Interactors
         # - P-value
+        # - If a gene is 'PRESENT' in an Enriched Cluster
+        # - ClusterID
+        # - Size of the Cluster (if enriched)
+        # - The Cluster associated P-value
         Gene_AllPatho = []
 
         Gene_AllPatho.append(All_Interactors_list[ENSG_index])
@@ -631,17 +637,24 @@ def Interactors_PValue(ProtA_dict, ProtB_dict, All_Interactors_list, CandidateGe
                     # and add the P-value associated with this cluster for the current pathology
                     if clusterPatho_Pvalue != 1:
                         Output_eachPatho.append('PRESENT')
+                        Output_eachPatho.append(cluster)
+                        # We know that clusterID is the key and value is a dictionary
+                        # containing 2 types of key/value pair (including pathology-specific information)
+                        # So, size of the cluster will be excluding pathology information (i.e pathology key/value pair)
+                        Cluster_size = len(IntCluster_dict[cluster]) - len(pathologies_list)
+                        Output_eachPatho.append(Cluster_size)
                         Output_eachPatho.append(clusterPatho_Pvalue)
                         break
 
             # If the gene is not present in any cluster
             # This can happen as we eliminate clusters with size < 2
-            # So we append an empty string and assign P-value = 1
+            # So we append empty values and assign P-value = 1
             # similar to a gene that is present in a cluster but not 
             # enriched for the current pathology
             if len(Output_eachPatho) == 3:
-                Output_eachPatho.append('')
-                Output_eachPatho.append(1)
+                no_cluster_data = ['', '', 0, 1]
+                for empty_data in no_cluster_data:
+                    Output_eachPatho.append(empty_data)
             else: # len(Output_eachPatho) is 5
                 # The gene was present in one of the clusters that
                 # is enriched for the current pathology
@@ -720,12 +733,13 @@ def addInteractome(args):
     # - patho-INTERACTORS
     # - patho-INTERACTORS_PVALUE
     # - patho-ENRICHED_CLUSTER
+    # - patho-ENRICHED_CLUSTER_ID
+    # - patho-ENRICHED_CLUSTER_SIZE
     # - patho-ENRICHED_CLUSTER_PVALUE
-    Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE', patho+'-ENRICHED_CLUSTER', patho+'-ENRICHED_CLUSTER_PVALUE'] for patho in pathologies_list]
+    Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE', patho+'-ENRICHED_CLUSTER', patho+'-ENRICHED_CLUSTER_ID', patho+'-ENRICHED_CLUSTER_SIZE', patho+'-ENRICHED_CLUSTER_PVALUE'] for patho in pathologies_list]
 
     # Initializing a list to store all
-    # all the elements of a sublist in a
-    # single list
+    # all the headers in a single list
     Patho_headers = []
 
     for headers in Patho_header_list:
@@ -763,8 +777,10 @@ def addInteractome(args):
             # INTERACTORS = ''
             # INTERACTORS_PVALUE = 1
             # ENRICHED_CLUSTER = ''
+            # ENRICHED_CLUSTER_ID = ''
+            # ENRICHED_CLUSTER_SIZE = 0
             # ENRICHED_CLUSTER_PVALUE = 1
-            line_fields[Symbol_index+1:Symbol_index+1] = [0,'',1,'',1] * len(pathologies_list)
+            line_fields[Symbol_index+1:Symbol_index+1] = [0,'',1,'','',0,1] * len(pathologies_list)
             print('\t'.join(str(data) for data in line_fields))  
 
     # Closing the file
