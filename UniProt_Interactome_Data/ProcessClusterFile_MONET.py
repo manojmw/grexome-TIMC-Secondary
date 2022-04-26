@@ -30,7 +30,7 @@ def ExtrClusters_sizeGT2(K1DREAM_file):
         line_fields = line.split('\t')
 
         # Eliminating clusters with size < 2
-        if len(line_fields) >= 3:
+        if len(line_fields) >= 4:
             nodes = line_fields[2:]
             cluster_count += 1
             print("ClusterID:%d||" % cluster_count)
