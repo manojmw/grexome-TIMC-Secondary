@@ -3,8 +3,9 @@
 # 25/06/2021
 # NTM
 
-# QC script: look for severe biallelic variants affecting  the canonical
-# transcript of each "causal gene" from the samples metadata file.
+# QC script: for diagnosed patients (ie with a "causal gene" in the samples metadata file),
+# look for severe biallelic variants affecting the causal gene's canonical transcript;
+# for undiagnosed patients, look for severe biallelic variants affecting a known candidate gene.
 
 
 use strict;
@@ -25,7 +26,7 @@ $0 = basename($0);
 #############################################
 ## options / params from the command-line
 
-# samples XLSX file, no default
+# samples metadata file
 my $samplesFile = "";
 
 # dir containing samples CSV files produced by grexome-TIMC-Secondary,
@@ -36,8 +37,13 @@ my $inDir = ".";
 my $help = '';
 
 
-my $USAGE = "\nFor each sample that has a causal gene in the metadata XLSX, examine the SAMPLES 
-results CSV files in indir and report if and how the causal gene's canonical transcript is hit.
+my $USAGE = "
+Examine the SAMPLES results CSV files in indir, and:
+- for each sample that has a causal gene in samplesFile, report if and how the causal gene's
+canonical transcript is hit;
+- for each sample that DOESN'T have a causal gene in samplesFile, report if the sample has any
+severe biallelic variant(s) affecting the canonical transcript of a known candidate gene
+(for the sample's pathology).
 Print our findings to stdout.
 Arguments [defaults] (all can be abbreviated to shortest unambiguous prefixes):
 --samplesFile : samples metadata xlsx file, with path
@@ -84,6 +90,7 @@ my $sample2causalR;
 my $nbSamples = scalar(keys(%$sample2cohortR));
 # number of samples with a causal gene in metadata
 my $nbCausal = scalar(keys(%$sample2causalR));
+
 # arrays of strings to print for samples whose "causal gene" is hit by
 # biallelic HIGH, biallelic MODHIGH, biallelic MODERATE/LOW, monoallelic,
 # or no variant at all
@@ -92,6 +99,13 @@ my @causalModHigh = ();
 my @causalLow = ();
 my @mono = ();
 my @noVar = ();
+
+# arrays of strings to print for samples without a "causal gene" but where
+# the canonical transcript of a candidateGene is hit by HV-HIGH , HV-MODHIGH
+# or at least 2 HET-MODHIGH+ variants
+my @candidateHVHigh = ();
+my @candidateHVModHigh = ();
+my @candidateHets= ();
 
 foreach my $inFile (sort(readdir(INDIR))) {
     ($inFile =~ /^\./) && next;
@@ -109,60 +123,132 @@ foreach my $inFile (sort(readdir(INDIR))) {
     # empty $sample2cohortR as we go, for sanity testing and speed
     delete($sample2cohortR->{$sample});
 
-    # if no known causal gene for sample $sample, skip $inFile
-    (defined($sample2causalR->{$sample})) || next;
-
-    my $causal = $sample2causalR->{$sample};
-
-    # find lines affecting a CANONICAL transcript of gene $causal in $inFile
     open(INFILE, "$inDir/$inFile") ||
 	die "E $0: cannot open inFile $inDir/$inFile\n";
+    
+    # if $sample has a causal gene: see if and how it is hit
+    if (defined($sample2causalR->{$sample})) {
+        my $causal = $sample2causalR->{$sample};
 
-    # indexes of columns of interest
-    my ($symbolCol, $biallelCol, $canonCol) = (-1,-1,-1);
-    # header: grab column indexes of interest
-    my $header = <INFILE>;
-    chomp($header);
-    my @header = split(/\t/,$header);
-    foreach my $i (0..$#header) {
-	($header[$i] eq 'SYMBOL') && ($symbolCol = $i);
-	($header[$i] eq 'BIALLELIC') && ($biallelCol = $i);
-	($header[$i] eq 'CANONICAL') && ($canonCol = $i);
-	($biallelCol > -1) && ($symbolCol > -1) && ($canonCol > -1) && last;
+        # indexes of columns of interest
+        my ($symbolCol, $biallelCol, $canonCol) = (-1,-1,-1);
+        # header: grab column indexes of interest
+        my $header = <INFILE>;
+        chomp($header);
+        my @header = split(/\t/,$header);
+        foreach my $i (0..$#header) {
+	    ($header[$i] eq 'SYMBOL') && ($symbolCol = $i);
+	    ($header[$i] eq 'BIALLELIC') && ($biallelCol = $i);
+	    ($header[$i] eq 'CANONICAL') && ($canonCol = $i);
+	    ($biallelCol > -1) && ($symbolCol > -1) && ($canonCol > -1) && last;
+        }
+        (($biallelCol > -1) && ($symbolCol > -1) && ($canonCol > -1)) || 
+	    die "E $0: cannot find required column headers in $inFile:\n$header\n";
+
+        # find lines affecting a CANONICAL transcript of $causal in $inFile,
+        # if no lines $foundCausal stays false
+        my $foundCausal = 0;
+        while (my $line = <INFILE>) {
+	    chomp($line);
+	    my @line = split(/\t/,$line);
+	    ($line[$symbolCol] eq "' $causal") || next;
+	    ($line[$canonCol] eq 'YES') || next;
+
+	    if ($line[$biallelCol] eq 'HIGH') {
+		push(@causalHigh, "$patho\t$sample\t$causal\tHIGH");
+	    }
+	    elsif ($line[$biallelCol] eq 'MODHIGH') {
+		push(@causalModHigh, "$patho\t$sample\t$causal\tMODHIGH");
+	    }
+	    elsif ($line[$biallelCol] eq 'NO') {
+		push(@mono, "$patho\t$sample\t$causal\tMONO-ALLELIC");
+	    }
+	    else {
+		push(@causalLow, "$patho\t$sample\t$causal\tLOW-MODER");
+	    }
+	    $foundCausal = 1;
+	    last;
+        }
+        ($foundCausal) ||
+	    push(@noVar, "$patho\t$sample\t$causal\tNOVARIANT");
     }
-    (($biallelCol > -1) && ($symbolCol > -1) && ($canonCol > -1)) || 
-	die "E $0: cannot find required column headers in $inFile:\n$header\n";
 
-    # find lines affecting a CANONICAL transcript of $causal in $inFile,
-    # if no lines $foundCausal stays false
-    my $foundCausal = 0;
-    while (my $line = <INFILE>) {
-	chomp($line);
-	my @line = split(/\t/,$line);
-	($line[$symbolCol] eq "' $causal") || next;
-	($line[$canonCol] eq 'YES') || next;
+    # else $sample doesn't have a causal gene: see if any known candidate gene is severely hit
+    else {
+        # indexes of columns of interest
+        my ($symbolCol,$candCol,$genoCol,$impactCol,$biallelCol,$canonCol) = (-1,-1,-1,-1,-1,-1);
+        # header: grab column indexes of interest
+        my $header = <INFILE>;
+        chomp($header);
+        my @header = split(/\t/,$header);
+        foreach my $i (0..$#header) {
+	    ($header[$i] eq 'SYMBOL') && ($symbolCol = $i);
+	    ($header[$i] eq 'KNOWN_CANDIDATE_GENE') && ($candCol = $i);
+	    ($header[$i] eq 'GENOTYPE') && ($genoCol = $i);
+	    ($header[$i] eq 'IMPACT') && ($impactCol = $i);
+	    ($header[$i] eq 'BIALLELIC') && ($biallelCol = $i);
+	    ($header[$i] eq 'CANONICAL') && ($canonCol = $i);
+	    ($impactCol > -1) && ($candCol > -1) && ($biallelCol > -1) && ($genoCol > -1) &&
+		($symbolCol > -1) && ($canonCol > -1) && last;
+        }
+        (($impactCol > -1) && ($candCol > -1) && ($biallelCol > -1) && ($genoCol > -1) &&
+	 ($symbolCol > -1) && ($canonCol > -1)) || 
+	    die "E $0: cannot find required column headers for undiagnosed sample in $inFile:\n$header\n";
 
-	if ($line[$biallelCol] eq 'HIGH') {
-	    push(@causalHigh, "$patho\t$sample\t$causal\tHIGH");
+	# candidate genes that are hit in $sample:
+	# key == "$patho:$level\t$sample\t$gene", where $gene is a known candidate
+	# gene of confidence level $level for $patho (== $sample's pathology),
+	# value == ref to an array of 3 ints == numbers of HV_HIGH, HV_MODHIGH
+	# and HET_MODHIGH+ variants affecting $gene's canonical transcript
+	my %hitCands = ();
+        
+        while (my $line = <INFILE>) {
+	    chomp($line);
+	    my @line = split(/\t/,$line);
+
+	    ($line[$canonCol] eq 'YES') || next;
+	    ($line[$biallelCol] eq 'HIGH') || ($line[$biallelCol] eq 'MODHIGH') || next;
+	    ($line[$candCol] =~ /($patho:[^,]+)/) || next;
+	    # OK we have a severely hit candidate gene, build the key for %hitCands
+	    my $key = "$1\t$sample\t";
+	    ($line[$symbolCol] =~ /^' (\S+)$/) ||
+		die "E $0: cannot extract gene name in:\n$line\n";
+	    $key .= $1;
+
+	    (defined $hitCands{$key}) || ($hitCands{$key} = [0,0,0]);
+	    if (($line[$impactCol] eq 'HIGH') && ($line[$genoCol] eq 'HV')) {
+		$hitCands{$key}->[0]++;
+	    }
+	    elsif (($line[$impactCol] eq 'MODHIGH') && ($line[$genoCol] eq 'HV')) {
+		$hitCands{$key}->[1]++;
+	    }
+	    elsif ((($line[$impactCol] eq 'HIGH') || ($line[$impactCol] eq 'MODHIGH')) &&
+		   ($line[$genoCol] eq 'HET')) {
+		$hitCands{$key}->[2]++;
+	    }
 	}
-	elsif ($line[$biallelCol] eq 'MODHIGH') {
-	    push(@causalModHigh, "$patho\t$sample\t$causal\tMODHIGH");
+
+	# done parsing INFILE, now prepare output: for each gene, only print info
+	# for the most severe category of variants
+	foreach my $key (sort keys(%hitCands)) {
+	    if ($hitCands{$key}->[0] > 0) {
+		push(@candidateHVHigh, "$key\tHV-HIGH\t".$hitCands{$key}->[0]);
+	    }
+	    elsif ($hitCands{$key}->[1] > 0) {
+		push(@candidateHVModHigh, "$key\tHV-MODHIGH\t".$hitCands{$key}->[1]);
+	    }
+	    elsif ($hitCands{$key}->[2] > 1) {
+		push(@candidateHets, "$key\tHET-MODHIGH+\t".$hitCands{$key}->[2]);
+	    }
+	    else {
+		die "E $0: impossible count vector for key $key: ".@{$hitCands{$key}};
+	    }
 	}
-	elsif ($line[$biallelCol] eq 'NO') {
-	    push(@mono, "$patho\t$sample\t$causal\tMONO-ALLELIC");
-	}
-	else {
-	    push(@causalLow, "$patho\t$sample\t$causal\tLOW-MODER");
-	}
-	$foundCausal = 1;
-	last;
     }
     close(INFILE);
-    ($foundCausal) ||
-	push(@noVar, "$patho\t$sample\t$causal\tNOVARIANT");
 }
-
 closedir(INDIR);
+
 
 # sanity: every sample from metadata should have been seen, assuming
 # we didn't analyze a subcohort/incomplete infile
@@ -170,38 +256,63 @@ closedir(INDIR);
     (print "W: ".scalar(keys(%$sample2cohortR))." samples from metadata have no samples.csv files\n");
 
 print "Total number of samples in metadata: $nbSamples\n";
-print "Samples with a causal gene in metadata: $nbCausal\n\n";
-print "Examining the samples CSV files in $inDir (canonical transcripts only), we found:\n";
-print "samples whose causal gene is BIALLELIC HIGH: ".scalar(@causalHigh)."\n";
-print "samples whose causal gene is BIALLELIC MODHIGH: ".scalar(@causalModHigh)."\n";
-print "samples whose causal gene is BIALLELIC MODERATE or LOW: ".scalar(@causalLow)."\n";
-print "samples whose causal gene is only hit by MONOALLELIC: ".scalar(@mono)."\n";
-print "samples whose causal gene has NO VARIANT: ".scalar(@noVar)."\n";
+print "Examining the samples CSV files in $inDir (canonical transcripts only), we find:\n\n";
+print "Samples WITH a causal gene in metadata ($nbCausal), where this causal gene is hit by:\n";
+print "a BIALLELIC HIGH variant: ".scalar(@causalHigh)."\n";
+print "a BIALLELIC MODHIGH variant: ".scalar(@causalModHigh)."\n";
+print "a BIALLELIC MODERATE or LOW variant: ".scalar(@causalLow)."\n";
+print "a MONOALLELIC variant: ".scalar(@mono)."\n";
+print "NO VARIANT: ".scalar(@noVar)."\n";
+print "\n";
+print "Samples WITHOUT a causal gene in metadata but where a candidate gene is hit by:\n";
+print "a HOMOZYGOUS HIGH variant: ".scalar(@candidateHVHigh)."\n";
+print "a HOMOZYGOUS MODHIGH variant: ".scalar(@candidateHVModHigh)."\n";
+print "two or more HETEROZYGOUS MODHIGH+ variants: ".scalar(@candidateHets)."\n";
 print"\n";
 
+print "\n#############################################################\n";
 if (@causalHigh) {
-    print "List of samples whose causal gene is BIALLELIC HIGH:\n";
+    print "Samples whose causal gene is BIALLELIC HIGH:\n";
     print join("\n", @causalHigh);
     print "\n\n";
 }
 if (@causalModHigh) {
-    print "List of samples whose causal gene is BIALLELIC MODHIGH:\n";
+    print "Samples whose causal gene is BIALLELIC MODHIGH:\n";
     print join("\n", @causalModHigh);
     print "\n\n";
 }
 if (@causalLow) {
-    print "List of samples whose causal gene is BIALLELIC LOW or MODERATE:\n";
+    print "Samples whose causal gene is BIALLELIC LOW or MODERATE:\n";
     print join("\n", @causalLow);
     print "\n\n";
 }
 if (@mono) {
-    print "List of samples whose causal gene is only hit by ONE MONOALLELIC variant:\n";
+    print "Samples whose causal gene is only hit by ONE MONOALLELIC variant:\n";
     print join("\n", @mono);
     print "\n\n";
 }
 if (@noVar) {
-    print "List of samples whose causal gene has NO VARIANT:\n";
+    print "Samples whose causal gene has NO VARIANT:\n";
     print join("\n", @noVar);
+    print "\n\n";
+}
+
+print "\n#############################################################\n";
+if (@candidateHVHigh){
+    print "Undiagnosed samples where a candidate gene is hit by N HV-HIGH variant(s):\n";
+    print join("\n", @candidateHVHigh);
+    print "\n\n";
+}
+
+if (@candidateHVModHigh){
+    print "Undiagnosed samples where a candidate gene is hit by N HV-MODHIGH variant(s):\n";
+    print join("\n", @candidateHVModHigh);
+    print "\n\n";
+}
+
+if (@candidateHets){
+    print "Undiagnosed samples where a candidate gene is hit by N>1 HET MODHIGH+ variants:\n";
+    print join("\n", @candidateHets);
     print "\n\n";
 }
 
