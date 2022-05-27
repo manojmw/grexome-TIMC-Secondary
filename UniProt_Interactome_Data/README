@@ -76,7 +76,9 @@ manojmw
 
       3] We try to eliminate most of the EXPANSION DATA, and keep only TRUE BINARY INTERACTIONS
 
-      4] Each Interaction has ≥ 1 experiment, of which one should be proven by any BINARY METHOD
+      4] Each Interaction has ≥ 2 experiments, of which ≥ 1 one should be proven by any BINARY METHOD
+
+      5] Additionally eliminating Hub/Sticky proteins (A protein is considered a hub if it has > 120 interactors. This number is based upon the degree distribution of the entire Interactome before eliminating hub/sticky proteins).
 
 
 ###########################################################
