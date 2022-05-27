@@ -20,8 +20,8 @@ import gzip
 # - Interaction type (column-5)
 #
 # Processes it by filtering based on Interaction Detection Method and Interaction type
-# Final filtering - Each interaction has at least 2 experiments
-# at least one of the experiments proved by any binary interaction method
+# Final filtering - Each interaction has at least 2 experiments of which
+# at least one should be proven by any binary interaction detection method
 #
 # Returns a list with 5 items (in each sublist):
 # - Protein A UniProt PrimAC,
@@ -117,7 +117,7 @@ def UniProtInteractome(inExpFile):
             PMID_count = len(PPI_PMID_dict[Int_key])
             Exp_count = len(PPI_IntDetMethod_dict[Int_key])
 
-            if Exp_count >= 1:
+            if Exp_count >= 2:
                 interaction_out_line = [Protein_A, Protein_B, str(PMID_count), Pubmed_Identifier, str(Exp_count)]
                 Uniprot_Interactome_list.append(interaction_out_line)
 
