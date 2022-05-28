@@ -180,10 +180,11 @@ def CandidateGeneParser(inCandidateFile, ENSG_Gene_dict):
 
 ###########################################################
 
-# Parses the dictionary {CandidateGene_dict}
-# returned by the function: CandidateGeneParser
+# Parses the patient samples metadata file
+# Required column: 'pathologyID' 
+# (can be in any order, but it MUST exist)
 #
-# Returns a list containing all the pathologies/cohorts
+# Returns a list containing all the pathologies/Phenotypes
 def getPathologies(inSample):
 
     sampleFile = inSample
