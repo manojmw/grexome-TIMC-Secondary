@@ -24,7 +24,7 @@ our @ISA = ('Exporter');
 # therefore we should never "use grexomeTIMCsec_config" but instead
 # provide the customized *config.pm as an argument, see --config in
 # grexome-TIMC-secondary.pl for an example.
-our @EXPORT_OK = qw(refGenome vepCacheFile vepPluginDataPath InteractomeFile UniProtFile ClusterFile canonicalFile fastTmpPath
+our @EXPORT_OK = qw(refGenome vepCacheFile vepPluginDataPath fastTmpPath
                     coveragePath gtexDatafile gtexFavoriteTissues subCohorts);
 
 
@@ -80,57 +80,6 @@ sub vepPluginDataPath {
     }
     # no dir found
     die "E: no vepPluginDataPath found, you need to edit *config.pm";
-}
-
-# Return the name (with path) of UniProt output file (produced by Uniprot_parser.py)
-# that will be used by 5.2_addInteractome.py
-# This sub takes as arg the path to the grexome-TIMC-secondary codebase,
-# assuming that the output of all scripts run in UniProt_Interactome_Data
-# directory is stored in the same directory
-# (You can change the path as per your needs)
-sub UniProtFile {
-    (@_ == 1) || die "E: UniProtFile needs one arg";
-    my ($secPath) = @_;
-    my $UniProt = "$secPath/UniProt_Interactome_Data/Uniprot_output.tsv";
-    (-f $UniProt) && return($UniProt);
-    die "E: no UniProt File found!";
-}
-
-# Return the name (with path) of Interactome file
-# that will be used by 5.2_addInteractome.py
-# This sub takes as arg the path to the grexome-TIMC-secondary codebase,
-# assuming that the output of all scripts run in UniProt_Interactome_Data
-# directory is stored in the same directory
-# (You can change the path as per your needs)
-sub InteractomeFile {
-    (@_ == 1) || die "E: InteractomeFile needs one arg";
-    my ($secPath) = @_;
-    my $Interactome = "$secPath/UniProt_Interactome_Data/Interactome_human.tsv";
-    (-f $Interactome) && return($Interactome);
-    die "E: no Interactome File found!";
-}
-
-# Return the name (with path) of Interactome clustering output file
-# that will be used by 5.2_addInteractome.py
-# This sub takes as arg the path to the grexome-TIMC-secondary codebase,
-# assuming that the output of all scripts run in UniProt_Interactome_Data
-# directory is stored in the same directory
-# (You can change the path as per your needs)
-sub ClusterFile {
-    (@_ == 1) || die "E: ClusterFile needs one arg";
-    my ($secPath) = @_;
-    my $IntCluster = "$secPath/UniProt_Interactome_Data/K1Clustering_clusterFile.cls";
-    (-f $IntCluster) && return($IntCluster);
-    die "E: no Interactome Cluster File found!";
-}
-
-# Return the name (with path) of Canonical Transcripts file
-# that will be used by 5.2_addInteractome.py
-# (You can change the path as per your needs)
-sub canonicalFile {
-    my $canonical = "/home/nthierry/Software/Grexome-TIMC/grexome-TIMC-Secondary/Transcripts_Data/canonicalTranscripts_220415.tsv.gz";
-    (-f $canonical) && return($canonical);
-    die "E: no Canonical Transcripts File found!";
 }
 
 # Return a tmp dir with fast RW access, ideally a ramdisk, otherwise
