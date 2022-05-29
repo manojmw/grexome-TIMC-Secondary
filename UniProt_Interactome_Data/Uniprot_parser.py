@@ -66,7 +66,7 @@ def uniprot_parser(UniProtinFile):
     re_TaxID = re.compile('^OX\s+NCBI_TaxID=(\d+)[; ]')
 
     # Ensembl transcripts and Genes from the DR line
-    re_ENS = re.compile('^DR\s+Ensembl; (\w+); \w+; (\w+)\.')
+    re_ENS = re.compile('^DR\s+Ensembl; (\S+); \S+; (\S+)\.')
 
     # GeneIDs from the DR line
     re_GID = re.compile('^DR\s+GeneID;\s+(\d+);')
@@ -197,7 +197,9 @@ def uniprot_parser(UniProtinFile):
             sys.exit()
         elif (re_ENS.match(line)):
             ENS_match = re_ENS.match(line)
-            ENSTs.append(ENS_match.group(1))
+            ENST = ENS_match.group(1)
+            if ENST not in ENSTs:
+                ENSTs.append(ENST)
             ENSG = ENS_match.group(2)
             if ENSG not in ENSGs:
                 ENSGs.append(ENSG)
