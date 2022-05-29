@@ -83,7 +83,7 @@ def uniprot_parser(UniProtinFile):
             ACs += re_AC.match(line).group(1)
         elif (re.match(r'^AC\s', line)):
             # If any AC line is missed, Exit the program with an error message
-            logging.error("Missed the AC line %s\n", line)
+            logging.error("Missed the AC line: %s\n" % line)
             sys.exit()
         elif (re_GN.match(line)):
             GNLine = re_GN.match(line).group(1)
@@ -182,18 +182,18 @@ def uniprot_parser(UniProtinFile):
                     if not GeneName in GeneNames:
                         GeneNames.append(GeneName)     
         elif (re.match(r'^GN\s+Name.*', line)):
-            logging.error("Error: Missed the Gene Name \n", ACs, line)  
+            logging.error("Error: Missed the Gene Name %s\n" % (ACs, line))
             sys.exit()
         elif (re.match(r'^GN\s+Synonyms.*', line)):
-            logging.error("Error: Missed the Gene Name Synonym \n", ACs, line)    
+            logging.error("Error: Missed the Gene Name Synonym %s\n" % (ACs,line))   
             sys.exit()
         elif (re_TaxID.match(line)):
             if (TaxID != 0):
-                logging.error("Several OX lines for the protein: \t", ACs)
+                logging.error("Several OX lines for the protein: %s\t" % ACs)
                 sys.exit()
             TaxID = re_TaxID.match(line).group(1)
         elif (re.match(r'^OX\s',line)):
-            logging.error("Missed the OX line %s\n", line)
+            logging.error("Missed the OX line %s\n" % line)
             sys.exit()
         elif (re_ENS.match(line)):
             ENS_match = re_ENS.match(line)
@@ -202,12 +202,12 @@ def uniprot_parser(UniProtinFile):
             if ENSG not in ENSGs:
                 ENSGs.append(ENSG)
         elif (re.match(r'^DR\s+Ensembl;', line)):
-            logging.error("Failed to get all the Ensembl Identifiers\n", ACs, line)
+            logging.error("Failed to get all the Ensembl Identifiers %s\n" % (ACs,line))
             sys.exit()
         elif (re_GID.match(line)):
             GeneIDs.append(re_GID.match(line).group(1))
         elif (re.match(r'^DR\s+GeneID.*', line)):
-            logging.error("Missed the GeneIDs \n", ACs, line)
+            logging.error("Missed the GeneIDs %s\n" % (ACs,line))
             sys.exit()
 
         # '//' means End of the record
@@ -223,26 +223,26 @@ def uniprot_parser(UniProtinFile):
                     # storing secondary_ACs as a single comma-seperated string
                     secondary_ACs = ','.join(secondary_AC_list) 
                 except:
-                    logging.error("Failed to store store UniProt Accession IDs for the protein: \t", ACs)
+                    logging.error("Failed to store store UniProt Accession IDs for the protein: %s\t" % ACs)
                     sys.exit()
                 try:
                     # storing Gene names as a single comma-seperated string
                     GeneNames = ','.join(GeneNames)
                 except:
-                    logging.error('Error: Failed to store Gene Name for the protein: \t', ACs)    
+                    logging.error('Error: Failed to store Gene Name for the protein: %s\t' % ACs)    
                     sys.exit()
                 try:
                     # Processing ENSTs and ENSGs
                     ENSTs = ','.join(ENSTs)
                     ENSGs = ','.join(ENSGs)
                 except:
-                    logging.error("Failed to store Ensembl Identifiers for the protein: \t", ACs)
+                    logging.error("Failed to store Ensembl Identifiers for the protein: %s\t" % ACs)
                     sys.exit()
                 try:
                     # storing GeneIDs as a single comma-seperated string
                     GeneIDs = ','.join(GeneIDs)
                 except:
-                    logging.error('Error: Failed to store Gene Identifiers for the protein: \t', ACs)   
+                    logging.error('Error: Failed to store Gene Identifiers for the protein: %s\t' % ACs)   
                     sys.exit()
 
                 # Printing to STDOUT
