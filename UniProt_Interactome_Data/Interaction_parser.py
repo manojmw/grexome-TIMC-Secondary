@@ -83,15 +83,20 @@ def Build_UniProtDicts(inUniProt):
 
     # Sanity check
     if not UniProtPrimAC_index >= 0:
-        sys.exit("Error: Missing required column title 'Primary_AC' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'Primary_AC' in the file: \n" + inUniProt)
+        sys.exit()
     elif not TaxID_index >= 0:
-        sys.exit("Error: Missing required column title 'TaxID' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'TaxID' in the file: \n" + inUniProt)
+        sys.exit()
     elif not UniprotSecAC_index >= 0:
-        sys.exit("Error: Missing required column title 'Secondary_ACs' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'Secondary_ACs' in the file: \n" + inUniProt)
+        sys.exit()
     elif not GeneID_index >= 0:
-        sys.exit("Error: Missing required column title 'GeneIDs' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'GeneIDs' in the file: \n" + inUniProt)
+        sys.exit()
     elif not GeneName_index >= 0:
-        sys.exit("Error: Missing required column title 'GeneNames' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'GeneNames' in the file: \n" + inUniProt)
+        sys.exit()
     # else grabbed the required column indices -> PROCEED
 
     # Data lines
