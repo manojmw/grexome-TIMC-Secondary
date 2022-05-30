@@ -4,6 +4,7 @@
 # 16 Apr, 2022
 
 import sys, argparse
+import logging
 
 ###########################################################
 
@@ -17,6 +18,8 @@ import sys, argparse
 #
 # End of a given cluster is indicated by an empty line
 def ExtrClusters_sizeGT2(K1DREAM_file):
+
+    logging.info("starting to run")
 
     K1DREAM_file = sys.stdin
 
@@ -37,6 +40,7 @@ def ExtrClusters_sizeGT2(K1DREAM_file):
             for node in nodes:
                 print(node)
             print("") 
+    logging.info("ALL DONE, completed successfully!")
     return
 
 ###########################################################
@@ -67,4 +71,10 @@ The output consists of:
     args.func(args)
 
 if __name__ == "__main__":
+    # Logging to Standard Error
+    logging.basicConfig(format = "%(levelname)s %(asctime)s: %(filename)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S', stream = sys.stderr, level = logging.DEBUG)
+    logging.addLevelName(logging.INFO, 'I' )
+    logging.addLevelName(logging.ERROR, 'E')
+    logging.addLevelName(logging.WARNING, 'W')
     main()
+
