@@ -145,7 +145,7 @@ def ENSG_Gene(inCanonicalFile):
         else:
             Canonical_File = open(inCanonicalFile)
     except IOError:
-        logging.error("Error: Failed to read the Canonical transcript file: %s" % inCanonicalFile)
+        logging.error("Failed to read the Canonical transcript file: %s" % inCanonicalFile)
         sys.exit()
 
     # Grabbing the header line
@@ -164,10 +164,10 @@ def ENSG_Gene(inCanonicalFile):
 
     # Sanity check
     if not ENSG_index >= 0:
-        logging.error("Error: Missing required column title 'ENSG' in the file: %s \n" % inCanonicalFile)
+        logging.error("Missing required column title 'ENSG' in the file: %s \n" % inCanonicalFile)
         sys.exit()
     elif not Gene_index >= 0:
-        logging.error("Error: Missing required column title 'GENE' in the file: %s \n" % inCanonicalFile)
+        logging.error("Missing required column title 'GENE' in the file: %s \n" % inCanonicalFile)
         sys.exit()
     # else grabbed the required column indexes -> PROCEED
 
@@ -226,10 +226,10 @@ def Uniprot_ENSG(inUniProt, ENSG_Gene_dict):
 
     # Sanity check
     if not UniProt_PrimAC_index >= 0:
-        logging.error("Error: Missing required column title 'Primary_AC' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'Primary_AC' in the file: %s \n" % inUniProt)
         sys.exit()
     elif not ENSG_index >= 0:
-        logging.error("Error: Missing required column title 'ENSG' in the file: %s \n" % inUniProt)
+        logging.error("Missing required column title 'ENSG' in the file: %s \n" % inUniProt)
         sys.exit()
     # else grabbed the required column indices -> PROCEED
 
