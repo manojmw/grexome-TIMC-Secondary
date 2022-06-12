@@ -558,7 +558,7 @@ def Interactors_PValue(args):
 
     # Printing header
     Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE', patho+'-ENRICHED_CLUSTER', patho+'-ENRICHED_CLUSTER_ID', patho+'-ENRICHED_CLUSTER_SIZE', patho+'-ENRICHED_CLUSTER_PVALUE'] for patho in pathologies_list]
-    print('GENE\t', '\t'.join(header for Patho_headerIndex in range(len(Patho_header_list)) for header in Patho_header_list[Patho_headerIndex]))
+    print('GENE', '\t', '\t'.join(header for Patho_headerIndex in range(len(Patho_header_list)) for header in Patho_header_list[Patho_headerIndex]))
 
     # Checking the number of interactors for each gene
     for ENSG_index in range(len(All_Interactors_list)):
