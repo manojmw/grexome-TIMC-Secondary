@@ -39,11 +39,11 @@ def InteractomeResults(ininteractomeresults):
         Interactome_headerL = Interactome_headerL.rstrip('\n')
 
         # Stores headers in a list
-        Interactome_headers = Interactome_headerL.split('\t')
+        Interactome_ALLheaders = Interactome_headerL.split('\t')
 
         # The first item in the Interactome_headers list
         # is the Gene header, we want to exclude this
-        Interactome_headers = Interactome_headers[1:]
+        Interactome_headers = Interactome_ALLheaders[1:]
 
         # Data lines
         for line in IntResults_File:
@@ -136,9 +136,8 @@ def addInteractome(args):
         if line_fields[Gene_index] in Gene_Interactome.keys():
             # Inserting Interactome data immediately after the 'SYMBOL' column
             line_fields[Symbol_index+1:Symbol_index+1] = Gene_Interactome[line_fields[Gene_index]]
-            print('\t'.join(str(data) for data in line_fields))
-        else:
-            pass
+        
+        print('\t'.join(str(data) for data in line_fields))
 
     # Closing the file
     step5_File.close()
