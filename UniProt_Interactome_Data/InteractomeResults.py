@@ -557,7 +557,7 @@ def Interactors_PValue(args):
     IntCluster_dict = Build_ClusterDict(args.inClusterFile, CandidateGene_dict, pathologies_list, pathology_CandidateCount, Count_UniqueENSGs)
 
     # Printing header
-    Patho_header_list = [[patho+'_INTERACTORS_COUNT', patho+'_INTERACTORS', patho+'_INTERACTORS_PVALUE', patho+'_ENRICHED_CLUSTER', patho+'_ENRICHED_CLUSTER_ID', patho+'_ENRICHED_CLUSTER_SIZE', patho+'_ENRICHED_CLUSTER_PVALUE'] for patho in pathologies_list]
+    Patho_header_list = [[patho+'-INTERACTORS_COUNT', patho+'-INTERACTORS', patho+'-INTERACTORS_PVALUE', patho+'-ENRICHED_CLUSTER', patho+'-ENRICHED_CLUSTER_ID', patho+'-ENRICHED_CLUSTER_SIZE', patho+'-ENRICHED_CLUSTER_PVALUE'] for patho in pathologies_list]
     print('GENE\t', '\t'.join(header for Patho_headerIndex in range(len(Patho_header_list)) for header in Patho_header_list[Patho_headerIndex]))
 
     # Checking the number of interactors for each gene
