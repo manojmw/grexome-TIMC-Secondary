@@ -18,49 +18,54 @@ import logging
 # Dictionary contains:
 # - Key: Gene (ENSG)
 # - Value: a list containing interactome data for each pathology
-def addInteractome(ininteractomeresults):
+def InteractomeResults(ininteractomeresults):
 
     logging.info("starting to run")
-
-    IntResults_File = open(ininteractomeresults)
 
     # Initializing the dictionary to store
     # Gene and assoicated interactome data
     Gene_Interactome = {}
 
-    # Grabbing the header line
-    Interactome_headerL = IntResults_File.readline()
+    # Initalizing list for headers
+    Interactome_headers = []
 
-    Interactome_headerL = Interactome_headerL.rstrip('\n')
+    # Excute below code only if Interactome file is provided
+    if ininteractomeresults:
+        IntResults_File = open(ininteractomeresults)
 
-    # Stores headers in a list
-    Interactome_headers = Interactome_headerL.split('\t')
+        # Grabbing the header line
+        Interactome_headerL = IntResults_File.readline()
 
-    # The first item in the Interactome_headers list
-    # is the Gene header, we want to exclude this
-    Interactome_headers = Interactome_headers[1:]
+        Interactome_headerL = Interactome_headerL.rstrip('\n')
 
-    # Data lines
-    for line in IntResults_File:
-        line = line.rstrip('\n')
-        line_fields = line.split('\t')
+        # Stores headers in a list
+        Interactome_headers = Interactome_headerL.split('\t')
 
-        # The first item in line_fields list is the Gene (ENSG)
-        # The remaining items are Interactome data assoicated with each pathology
-        ENSG = line_fields[0]
-        Interactome_data = line_fields[1:]
+        # The first item in the Interactome_headers list
+        # is the Gene header, we want to exclude this
+        Interactome_headers = Interactome_headers[1:]
 
-        # Storing the data in dictionary
-        # - Key: Gene (ENSG)
-        # - Value: a list containing interactome data for each pathology
-        if ENSG in Gene_Interactome.keys():
-            logging.error("At Step 5.2_addInteractome - Gene found twice in the Interactome results file, impossible. Please fix the file")
-            sys.exit()
-        else:
-            Gene_Interactome[ENSG] = Interactome_data
-    
-    # Closing the file
-    IntResults_File.close()
+        # Data lines
+        for line in IntResults_File:
+            line = line.rstrip('\n')
+            line_fields = line.split('\t')
+
+            # The first item in line_fields list is the Gene (ENSG)
+            # The remaining items are Interactome data assoicated with each pathology
+            ENSG = line_fields[0]
+            Interactome_data = line_fields[1:]
+
+            # Storing the data in dictionary
+            # - Key: Gene (ENSG)
+            # - Value: a list containing interactome data for each pathology
+            if ENSG in Gene_Interactome.keys():
+                logging.error("At Step 5.2_addInteractome - Gene found twice in the Interactome results file, impossible. Please fix the file")
+                sys.exit()
+            else:
+                Gene_Interactome[ENSG] = Interactome_data
+        
+        # Closing the file
+        IntResults_File.close()
 
     return Interactome_headers, Gene_Interactome
 
@@ -77,7 +82,7 @@ def addInteractome(ininteractomeresults):
 def addInteractome(args):
 
     # Calling the function
-    (Interactome_headers, Gene_Interactome) = addInteractome(args.ininteractomeresults)
+    (Interactome_headers, Gene_Interactome) = InteractomeResults(args.ininteractomeresults)
 
     # Take STDIN file as produced by 5.1_addGTEX.pl
     step5_File = sys.stdin
@@ -132,6 +137,8 @@ def addInteractome(args):
             # Inserting Interactome data immediately after the 'SYMBOL' column
             line_fields[Symbol_index+1:Symbol_index+1] = Gene_Interactome[line_fields[Gene_index]]
             print('\t'.join(str(data) for data in line_fields))
+        else:
+            pass
 
     # Closing the file
     step5_File.close()
