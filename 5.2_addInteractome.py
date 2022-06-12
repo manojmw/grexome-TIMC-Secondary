@@ -136,9 +136,12 @@ def addInteractome(args):
         if line_fields[Gene_index] in Gene_Interactome.keys():
             # Inserting Interactome data immediately after the 'SYMBOL' column
             line_fields[Symbol_index+1:Symbol_index+1] = Gene_Interactome[line_fields[Gene_index]]
+            print('\t'.join(str(data) for data in line_fields))
+        else:
+            # If the gene is not present in STDIN file, then add an empty field for interactome
+            line_fields[Symbol_index+1:Symbol_index+1] = [''] * len(Interactome_headers)
+            print('\t'.join(str(data) for data in line_fields))  
         
-        print('\t'.join(str(data) for data in line_fields))
-
     # Closing the file
     step5_File.close()
 
