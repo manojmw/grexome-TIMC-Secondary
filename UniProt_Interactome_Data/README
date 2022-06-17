@@ -1,8 +1,10 @@
 manojmw
 24 Apr 2022
 
-DEPENDENCIES:
-*************
+###########################################################
+
+## DEPENDENCIES:
+
 Requires Python version >= 3
 External dependencies are kept to minimum in all the scripts. The only required python modules are listed below: 
 - OpenPyXl
@@ -10,62 +12,58 @@ External dependencies are kept to minimum in all the scripts. The only required 
 You can easily install these with pip/conda Ex: (pip3 install openpyxl scipy) OR (conda install openpyxl scipy)
 Most other standard core modules should already be available on your system
 
-EXAMPLE USAGE:
-**************
+###########################################################
+
+## EXAMPLE USAGE:
 
 # Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
 
-###########################################################
-
 # Accessing and Processing UniProt data files
 
-1] Grab the latest UniProt data with:
-  % wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
+  1] Grab the latest UniProt data with:
+    % wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
 
-2] Parse UniProt data to produce output file with:
-  % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py > Uniprot_output.tsv
-
-
-###########################################################
+  2] Parse UniProt data to produce output file with:
+    % gunzip -c uniprot_sprot.dat.gz | python3 Uniprot_parser.py > Uniprot_output.tsv
+    
 
 # Accessing and processing Protein-Protein Interaction Data
 
-1] Grab the Protein-Protein Interaction Data in miTAB format (2.5 or 2.7)
+  1] Grab the Protein-Protein Interaction Data in miTAB format (2.5 or 2.7)
 
-    # Get the latest BioGRID data with:
-      % wget https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ORGANISM-LATEST.mitab.zip
+      # Get the latest BioGRID data with:
+        % wget https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ORGANISM-LATEST.mitab.zip
 
-    - Unzip with:
-      % unzip BIOGRID-ORGANISM-LATEST.mitab
+      - Unzip with:
+        % unzip BIOGRID-ORGANISM-LATEST.mitab
 
-    - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt for human data)
-
-
-    # Get the latest IntAct data with:
-      % wget ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.zip
-
-    - Once downloaded, unzip with:
-      % unzip intact.zip
-
-    - This will produce 2 files (intact.txt & intact_negative.txt). Use intact.txt for further steps
+      - This will produce one miTAB file per Organism (Use BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt for human data)
 
 
-2.1] Parse BioGRID data with:
-    % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt --inUniProt Uniprot_output.tsv > Exp_Biogrid.tsv
+      # Get the latest IntAct data with:
+        % wget ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.zip
 
-2.2] Then, parse Intact data with:
-    % python3 Interaction_parser.py --inInteraction intact.txt --inUniProt Uniprot_output.tsv > Exp_Intact.tsv
+      - Once downloaded, unzip with:
+        % unzip intact.zip
 
-    # Description of arguments:
-
-      --inInteraction: Protein-protein Interaction Input File name (miTAB 2.5 or 2.7)
-
-      --inUniProt    : Output produced by Uniprot_parser.py
+      - This will produce 2 files (intact.txt & intact_negative.txt). Use intact.txt for further steps
 
 
-###########################################################
+  2.1] Parse BioGRID data with:
+      % python3 Interaction_parser.py --inInteraction BIOGRID-ORGANISM-Homo_sapiens*.mitab.txt --inUniProt Uniprot_output.tsv > Exp_Biogrid.tsv
+
+  2.2] Then, parse Intact data with:
+      % python3 Interaction_parser.py --inInteraction intact.txt --inUniProt Uniprot_output.tsv > Exp_Intact.tsv
+
+      # Description of arguments:
+
+        --inInteraction: Protein-protein Interaction Input File name (miTAB 2.5 or 2.7)
+
+        --inUniProt    : Output produced by Uniprot_parser.py
+
 
 # Build High-Quality Human Interactome with:
+
   % python3 Build_Interactome.py --inExpFile Exp_Biogrid.tsv Exp_Intact.tsv --inUniProt Uniprot_output.tsv --inCanonicalFile canonicalTranscripts_*.tsv.gz > Interactome_human.tsv
 
     # Description of arguments:
@@ -89,87 +87,82 @@ EXAMPLE USAGE:
       4] Each Interaction has ≥ 2 experiments, of which ≥ 1 one should be proven by any BINARY INTERACTION DETECTION METHOD
 
       5] Additionally eliminating Hub/Sticky proteins (A protein is considered a hub if it has > 120 interactors. This number is based upon the degree distribution of the entire Interactome before eliminating hub/sticky proteins).
-
-
-###########################################################
+      
 
 # For getting the canonical transcript file, please refer to grexome-TIMC-Secondary/Transcripts_Data/
 
 
-###########################################################
-
 # Interactome Clustering Data
 
-- We consider Clusters with a size of >= 3 and 130 (max)
+  - We consider Clusters with a size of >= 3 and 130 (max)
 
-- If the cluster size exceeds 130, the methods are applied recursively (MONET tool automatically does this) to obtain clusters of desired size.
-- We have tested mainly 4 types of clustering methods:
+  - If the cluster size exceeds 130, the methods are applied recursively (MONET tool automatically does this) to obtain clusters of desired size.
+  - We have tested mainly 4 types of clustering methods:
 
 
-  1] Kernel clustering approach (top ranking method K1 from DREAM Challenge) (Choobdar, Sarvenaz et al. “Assessment of network module identification across complex diseases.” Nature methods vol. 16,9 (2019): 843-852. doi:10.1038/s41592-019-0509-5)
+    1] Kernel clustering approach (top ranking method K1 from DREAM Challenge) (Choobdar, Sarvenaz et al. “Assessment of network module identification across complex diseases.” Nature methods vol. 16,9 (2019): 843-852. doi:10.1038/s41592-019-0509-5)
 
-  2] Modularity Optimization method (top ranking method M1 from DREAM Challenge) (Choobdar, Sarvenaz et al. “Assessment of network module identification across complex diseases.” Nature methods vol. 16,9 (2019): 843-852. doi:10.1038/s41592-019-0509-5)
+    2] Modularity Optimization method (top ranking method M1 from DREAM Challenge) (Choobdar, Sarvenaz et al. “Assessment of network module identification across complex diseases.” Nature methods vol. 16,9 (2019): 843-852. doi:10.1038/s41592-019-0509-5)
 
-  3] Random-walk-based method (top ranking method R1 from DREAM Challenge) (Choobdar, Sarvenaz et al. “Assessment of network module identification across complex diseases.” Nature methods vol. 16,9 (2019): 843-852. doi:10.1038/s41592-019-0509-5)
+    3] Random-walk-based method (top ranking method R1 from DREAM Challenge) (Choobdar, Sarvenaz et al. “Assessment of network module identification across complex diseases.” Nature methods vol. 16,9 (2019): 843-852. doi:10.1038/s41592-019-0509-5)
 
-    - To run the above clustering methods on the Interactome file generated by Build_Interactome.py, please use the MONET tool described at: https://github.com/BergmannLab/MONET
+      - To run the above clustering methods on the Interactome file generated by Build_Interactome.py, please use the MONET tool described at: https://github.com/BergmannLab/MONET
 
-    - If you will be using the file produced by this method, then please process it using ProcessClusterFile_MONET.py script using the command:
+      - If you will be using the file produced by this method, then please process it using ProcessClusterFile_MONET.py script using the command:
 
-       % cat cluster_outputFile.tsv | python3 ProcessClusterFile_MONET.py > K1Clustering_clusterFile.cls
+         % cat cluster_outputFile.tsv | python3 ProcessClusterFile_MONET.py > K1Clustering_clusterFile.cls
 
-       # Input File description:
+         # Input File description:
 
-           cluster_outputFile.tsv:    Clustering Output File produced by K1 method of MONET tool
+             cluster_outputFile.tsv:    Clustering Output File produced by K1 method of MONET tool
 
-    
-  4] Randomized optimization of modularity (Didier, Gilles et al. “Identifying communities from multiplex biological networks by randomized optimization of modularity.” F1000Research vol. 7 1042. 10 Jul. 2018, doi:10.12688/f1000research.15486.2)
 
-    - To run this clustering method on the Interactome file generated by Build_Interactome.py, please use the MolTi-DREAM tool described at: https://github.com/gilles-didier/MolTi-DREAM
+    4] Randomized optimization of modularity (Didier, Gilles et al. “Identifying communities from multiplex biological networks by randomized optimization of modularity.” F1000Research vol. 7 1042. 10 Jul. 2018, doi:10.12688/f1000research.15486.2)
 
-    - This might generate some large clusters (i.e size > 130), in such cases, please run the tool recurscively as described at MolTi-DREAM GitHub page
+      - To run this clustering method on the Interactome file generated by Build_Interactome.py, please use the MolTi-DREAM tool described at: https://github.com/gilles-didier/MolTi-DREAM
 
-    - The output produced by this tool need not be processed further and can be directly used.
+      - This might generate some large clusters (i.e size > 130), in such cases, please run the tool recurscively as described at MolTi-DREAM GitHub page
 
-  
-- You can use one of the above or any other clustering methods, but the cluster output file should be of the format:
+      - The output produced by this tool need not be processed further and can be directly used.
 
-    -> Header: (Ex: #ClustnSee analysis export)
-    -> Followed by ClusterID (Ex: ClusterID:1||)
-    -> Followed by Name(ENSG) of the Cluster(s) (Ex: ENSG00000162819)
-    -> End of a given Cluster is indicated by an empty line
 
-- Sample Cluster File Format: 
+  - You can use one of the above or any other clustering methods, but the cluster output file should be of the format:
 
-      #ClustnSee analysis export
-      ClusterID:1||
-      ENSG00000162819
-      ENSG00000021574
+      -> Header: (Ex: #ClustnSee analysis export)
+      -> Followed by ClusterID (Ex: ClusterID:1||)
+      -> Followed by Name(ENSG) of the Cluster(s) (Ex: ENSG00000162819)
+      -> End of a given Cluster is indicated by an empty line
 
-      ClusterID:2||
-      ENSG00000172831
-      ENSG00000255112
-      ENSG00000119541
-      ENSG00000167232
-      ENSG00000131165
+  - Sample Cluster File Format: 
 
-      ClusterID:4||
-      ENSG00000162039
-      ENSG00000106302
-      ENSG00000140675
-      ENSG00000165805
-      ENSG00000105679
-      
-###########################################################
+        #ClustnSee analysis export
+        ClusterID:1||
+        ENSG00000162819
+        ENSG00000021574
+
+        ClusterID:2||
+        ENSG00000172831
+        ENSG00000255112
+        ENSG00000119541
+        ENSG00000167232
+        ENSG00000131165
+
+        ClusterID:4||
+        ENSG00000162039
+        ENSG00000106302
+        ENSG00000140675
+        ENSG00000165805
+        ENSG00000105679
+
 
 # Generating Interactome Results File with
 
-python3 InteractomeResults.py --insamples sample.xlsx --inuniprot Uniprot_output.tsv --incandidate candidateGenes_*.xlsx --incanonical canonicalTranscripts_*.tsv.gz --ininteractome Interactome_human.tsv --incluster Cluster_Files.cls > Interactome_Results.tsv
+  % python3 InteractomeResults.py --insamples sample.xlsx --inuniprot Uniprot_output.tsv --incandidate candidateGenes_*.xlsx --incanonical canonicalTranscripts_*.tsv.gz --ininteractome Interactome_human.tsv --incluster Cluster_Files.cls > Interactome_Results.tsv
 
-# Description of arguments:
+  # Description of arguments:
 
-      --insamples       :  samples metadata File (.xlsx) [Please refer to the grexome-TIMC-Secondary/README - METADATA FILES]
+        --insamples       :  samples metadata File (.xlsx) [Please refer to the grexome-TIMC-Secondary/README - METADATA FILES]
 
-      --incandidate     :  candidateGenes File (.xlsx) [Please refer to the grexome-TIMC-Secondary/README - METADATA FILES]
- 
-      --incluster       :  Interactome Cluster File (.cls format in the previous step)
+        --incandidate     :  candidateGenes File (.xlsx) [Please refer to the grexome-TIMC-Secondary/README - METADATA FILES]
+
+        --incluster       :  Interactome Cluster File (.cls format in the previous step)
