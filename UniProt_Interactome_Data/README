@@ -1,7 +1,17 @@
-###########################################################
-
 manojmw
 24 Apr 2022
+
+DEPENDENCIES:
+*************
+Requires Python version >= 3
+External dependencies are kept to minimum in all the scripts. The only required python modules are listed below: 
+- OpenPyXl
+- SciPy
+You can easily install these with pip/conda Ex: (pip3 install openpyxl scipy) OR (conda install openpyxl scipy)
+Most other standard core modules should already be available on your system
+
+EXAMPLE USAGE:
+**************
 
 # Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
 
