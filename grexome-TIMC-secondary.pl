@@ -235,7 +235,7 @@ my $numSamples = 0;
 # variant-caller string/name, will be added to all final filenames
 my $caller;
 # try to find the caller name in $inFile
-foreach my $c ("Strelka", "GATK", "ElPrep") {
+foreach my $c ("Strelka", "GATK", "ElPrep", "DeepVariant") {
     if ($inFile =~ /$c/i) {
 	$caller = $c;
 	warn "I $0: variant-caller id $caller will be appended to all filenames\n";
