@@ -86,21 +86,21 @@ EXAMPLE USAGE:
 
       3] We try to eliminate most of the EXPANSION DATA, and keep only TRUE BINARY INTERACTIONS
 
-      4] Each Interaction has ≥ 2 experiments, of which ≥ 1 one should be proven by any BINARY METHOD
+      4] Each Interaction has ≥ 2 experiments, of which ≥ 1 one should be proven by any BINARY INTERACTION DETECTION METHOD
 
       5] Additionally eliminating Hub/Sticky proteins (A protein is considered a hub if it has > 120 interactors. This number is based upon the degree distribution of the entire Interactome before eliminating hub/sticky proteins).
 
 
 ###########################################################
 
-# For getting canonical transcript file, refer to grexome-TIMC-Secondary/Transcripts_Data/
+# For getting the canonical transcript file, please refer to grexome-TIMC-Secondary/Transcripts_Data/
 
 
 ###########################################################
 
 # Interactome Clustering Data
 
-- We consider Clusters with a size of >= 2 and 130 (max)
+- We consider Clusters with a size of >= 3 and 130 (max)
 
 - If the cluster size exceeds 130, the methods are applied recursively (MONET tool automatically does this) to obtain clusters of desired size.
 - We have tested mainly 4 types of clustering methods:
@@ -159,3 +159,17 @@ EXAMPLE USAGE:
       ENSG00000140675
       ENSG00000165805
       ENSG00000105679
+      
+###########################################################
+
+# Generating Interactome Results File with
+
+python3 InteractomeResults.py --insamples sample.xlsx --inuniprot Uniprot_output.tsv --incandidate candidateGenes_*.xlsx --incanonical canonicalTranscripts_*.tsv.gz --ininteractome Interactome_human.tsv --incluster Cluster_Files.cls > Interactome_Results.tsv
+
+# Description of arguments:
+
+      --insamples       :  samples metadata File (.xlsx) [Please refer to the grexome-TIMC-Secondary/README - METADATA FILES]
+
+      --incandidate     :  candidateGenes File (.xlsx) [Please refer to the grexome-TIMC-Secondary/README - METADATA FILES]
+ 
+      --incluster       :  Interactome Cluster File (.cls format in the previous step)
