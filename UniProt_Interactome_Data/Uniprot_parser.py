@@ -260,7 +260,7 @@ def uniprot_parser(UniProtinFile):
             GeneNames = []
             continue
 
-    logging.info("ALL DONE, completed successfully!")
+    logging.info("ALL Done, completed successfully!")
 
     return
 
@@ -271,23 +271,18 @@ def main():
 
     file_parser = argparse.ArgumentParser(description =
     """
----------------------------------------------------------------------------------------------
-Program: Parses a uniprot file (STDIN), processes it and produces the following output files:
----------------------------------------------------------------------------------------------
-Output File 1 (--outPrimaryAC):   A tab-seperated file (.tsv) with four columns
-                                   -> UniProt Primary Accession
-                                   -> Taxonomy Identifier
-                                   -> ENST (or Comma seperated list of ENSTs)
-                                   -> ENSG (or Comma seperated list of ENSGs)
-
-Output File 2 (--outSecondaryAC): A tab-seperated file (.tsv) with two columns
-                                   -> UniProt Secondary Accession
-                                   -> Corresponding UniProt Primary Accession
-
-Output File 3 (--outGeneID):      A tab-seperated file (.tsv) with two columns
-                                   -> GeneID
-                                   -> Corresponding UniProt Primary Accession
----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+Program: Parses on STDIN a UniProt file, processes each record and prints to STDOUT in .tsv format
+--------------------------------------------------------------------------------------------------
+The output consists of 7 columns:
+ -> Uniprot Primary Accession
+ -> Taxonomy Identifier
+ -> ENST (or a comma seperated list of ENSTs)
+ -> ENSG (or a comma seperated list of ENSGs)
+ -> Uniprot Secondary Accession (or a comma seperated list of Uniprot Secondary Accessions)
+ -> GeneID (or a comma seperated list of GeneIDs)
+ -> Gene Name (or a comma seperated list of Gene Names)
+--------------------------------------------------------------------------------------------------
 
 Arguments [defaults] -> Can be abbreviated to shortest unambiguous prefixes
     """,
