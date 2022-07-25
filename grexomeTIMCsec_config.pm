@@ -55,7 +55,7 @@ sub refGenome {
 sub vepCacheFile {
     # you'll need to customize the array of possible values for $cachedir,
     # we use the first dir that exists (works on all our servers)
-    foreach my $cachedir ("/data/nthierry/PierreRay/RunSecondaryAnalyses/VEP_cache") {
+    foreach my $cachedir ("/data/nthierry/PierreRay/RunSecondaryAnalyses/") {
         if (-d $cachedir) {
             # the name of the file itself, can probably stay as-is
             my $cacheFile = "VEP_cache";
