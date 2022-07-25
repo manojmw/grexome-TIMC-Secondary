@@ -260,7 +260,7 @@ def uniprot_parser(UniProtinFile):
             GeneNames = []
             continue
 
-    logging.info("ALL Done, completed successfully!")
+    logging.info("All Done, completed successfully!")
 
     return
 
